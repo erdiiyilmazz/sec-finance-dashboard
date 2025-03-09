@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple SEC Dashboard</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --card-bg: #ffffff;
+            --card-border: #ddd;
+            --card-shadow: rgba(0,0,0,0.1);
+            --input-border: #ddd;
+            --result-bg: #f5f5f5;
+            --button-bg: #4CAF50;
+            --button-color: white;
+            --button-hover: #45a049;
+            --success-color: #4CAF50;
+            --error-color: #f44336;
+            --warning-color: #ff9800;
+            --muted-color: #666;
+        }
+        
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --card-bg: #1e1e1e;
+            --card-border: #333;
+            --card-shadow: rgba(0,0,0,0.3);
+            --input-border: #444;
+            --result-bg: #2a2a2a;
+            --button-bg: #388e3c;
+            --button-color: white;
+            --button-hover: #2e7d32;
+            --success-color: #4CAF50;
+            --error-color: #f44336;
+            --warning-color: #ff9800;
+            --muted-color: #aaa;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .card {
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px var(--card-shadow);
+            background-color: var(--card-bg);
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, button, select {
+            padding: 8px 12px;
+            border: 1px solid var(--input-border);
+            border-radius: 4px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+        button {
+            background-color: var(--button-bg);
+            color: var(--button-color);
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: var(--button-hover);
+        }
+        .result {
+            margin-top: 20px;
+            white-space: pre-wrap;
+            background-color: var(--result-bg);
+            padding: 10px;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            transition: background-color 0.3s ease;
+        }
+        .error {
+            color: var(--error-color);
+        }
+        .success {
+            color: var(--success-color);
+        }
+        .warning {
+            color: var(--warning-color);
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .auto-refresh {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .status-online {
+            background-color: var(--success-color);
+        }
+        .status-offline {
+            background-color: var(--error-color);
+        }
+        .last-updated {
+            font-size: 0.8em;
+            color: var(--muted-color);
+            margin-top: 5px;
+        }
+        
+        /* Dark mode toggle */
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .theme-switch {
+            display: inline-block;
+            height: 24px;
+            position: relative;
+            width: 48px;
+        }
+        .theme-switch input {
+            display: none;
+        }
+        .slider {
+            background-color: #ccc;
+            bottom: 0;
+            cursor: pointer;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            background-color: white;
+            bottom: 4px;
+            content: "";
+            height: 16px;
+            left: 4px;
+            position: absolute;
+            transition: .4s;
+            width: 16px;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+        .theme-icon {
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Simple SEC Dashboard</h1>
+        <div class="controls">
+            <div class="theme-switch-wrapper">
+                <span class="theme-icon">☀️</span>
+                <label class="theme-switch">
+                    <input type="checkbox" id="themeSwitch">
+                    <span class="slider"></span>
+                </label>
+                <span class="theme-icon">🌙</span>
+            </div>
+            <div class="auto-refresh">
+                <div>
+                    <span id="apiStatusIndicator" class="status-indicator status-offline"></span>
+                    <span id="apiStatusText">API Status: Checking...</span>
+                </div>
+                <div>
+                    <label for="refreshInterval">Auto-refresh:</label>
+                    <select id="refreshInterval">
+                        <option value="0">Off</option>
+                        <option value="30">30 seconds</option>
+                        <option value="60" selected>1 minute</option>
+                        <option value="300">5 minutes</option>
+                        <option value="600">10 minutes</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="last-updated">Last updated: <span id="lastUpdated">Never</span></div>
+    
+    <div class="container">
+        <div class="card">
+            <h2>API Status</h2>
+            <button id="checkApi">Check API Status</button>
+            <div id="apiStatus" class="result"></div>
+        </div>
+        
+        <div class="card">
+            <h2>CIK-Ticker Mappings</h2>
+            <p class="warning">⚠️ You must sync CIK-ticker mappings first before syncing individual companies!</p>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="forceRefreshMappings"> Force Refresh (ignore cache)
+                </label>
+            </div>
+            <button id="syncMappings">Sync CIK-Ticker Mappings</button>
+            <div id="mappingsResult" class="result"></div>
+        </div>
+        
+        <div class="card">
+            <h2>Data Sync</h2>
+            <div class="form-group">
+                <label for="ticker">Ticker Symbol:</label>
+                <input type="text" id="ticker" placeholder="e.g., AAPL">
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="forceRefresh"> Force Refresh (ignore cache)
+                </label>
+            </div>
+            <button id="syncData">Sync Data</button>
+            <div id="syncResult" class="result"></div>
+        </div>
+        
+        <div class="card">
+            <h2>Companies</h2>
+            <div class="form-group">
+                <label for="companiesLimit">Number of companies to show:</label>
+                <select id="companiesLimit">
+                    <option value="20" selected>20 companies</option>
+                    <option value="50">50 companies</option>
+                    <option value="100">100 companies</option>
+                    <option value="500">500 companies</option>
+                    <option value="1000">1000 companies</option>
+                    <option value="5000">5000 companies</option>
+                    <option value="0">All companies</option>
+                </select>
+            </div>
+            <button id="getCompanies">Get Companies</button>
+            <div id="companiesList" class="result"></div>
+        </div>
+        
+        <div class="card">
+            <h2>Company Details</h2>
+            <div class="form-group">
+                <label for="companyTicker">Ticker Symbol:</label>
+                <input type="text" id="companyTicker" placeholder="e.g., AAPL">
+            </div>
+            <button id="getCompany">Get Company Details</button>
+            <div id="companyDetails" class="result"></div>
+        </div>
+        
+        <div class="card">
+            <h2>10-K Filings</h2>
+            <div class="form-group">
+                <label for="filingsTicker">Ticker Symbol:</label>
+                <input type="text" id="filingsTicker" placeholder="e.g., AAPL">
+            </div>
+            <div class="form-group">
+                <label for="filingsLimit">Number of filings to show:</label>
+                <select id="filingsLimit">
+                    <option value="3" selected>3 filings</option>
+                    <option value="5">5 filings</option>
+                    <option value="10">10 filings</option>
+                    <option value="20">20 filings</option>
+                </select>
+            </div>
+            <button id="getFilings">Get 10-K Filings</button>
+            <div id="filingsList" class="result"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Determine the best API URL to use (try localhost first, then fallback to 127.0.0.1)
+        const BASE_HOST = window.location.hostname === 'localhost' ? 'localhost' : '127.0.0.1';
+        const API_URL = `http://${BASE_HOST}:8001`;
+        let refreshIntervalId = null;
+        let lastActiveCompanyTicker = '';
+        
+        // Dark mode functionality
+        const themeSwitch = document.getElementById('themeSwitch');
+        
+        // Check for saved theme preference or use preferred color scheme
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        const currentTheme = localStorage.getItem('theme');
+        
+        if (currentTheme === 'dark' || (!currentTheme && prefersDarkScheme.matches)) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeSwitch.checked = true;
+        }
+        
+        // Theme switch event listener
+        themeSwitch.addEventListener('change', function() {
+            if (this.checked) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+        
+        // Update the last updated timestamp
+        function updateLastUpdated() {
+            const now = new Date();
+            document.getElementById('lastUpdated').textContent = now.toLocaleString();
+        }
+        
+        // Check API Status
+        async function checkApiStatus() {
+            const statusDiv = document.getElementById('apiStatus');
+            const statusIndicator = document.getElementById('apiStatusIndicator');
+            const statusText = document.getElementById('apiStatusText');
+            
+            statusDiv.innerHTML = 'Checking API status...';
+            
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                statusDiv.innerHTML = `<span class="success">API is running!</span><br>Response: ${JSON.stringify(data, null, 2)}`;
+                statusIndicator.className = 'status-indicator status-online';
+                statusText.textContent = 'API Status: Online';
+                updateLastUpdated();
+                return true;
+            } catch (error) {
+                statusDiv.innerHTML = `<span class="error">Error connecting to API: ${error.message}</span>`;
+                statusIndicator.className = 'status-indicator status-offline';
+                statusText.textContent = 'API Status: Offline';
+                updateLastUpdated();
+                return false;
+            }
+        }
+        
+        document.getElementById('checkApi').addEventListener('click', checkApiStatus);
+        
+        // Sync CIK-Ticker Mappings
+        async function syncMappings() {
+            const forceRefresh = document.getElementById('forceRefreshMappings').checked;
+            const resultDiv = document.getElementById('mappingsResult');
+            
+            resultDiv.innerHTML = 'Syncing CIK-ticker mappings...';
+            
+            try {
+                const response = await fetch(`${API_URL}/cik-mappings/sync?force_refresh=${forceRefresh}`, {
+                    method: 'POST'
+                });
+                
+                if (!response.ok) {
+                    // If the endpoint doesn't exist, try an alternative approach
+                    if (response.status === 404) {
+                        resultDiv.innerHTML = `<span class="warning">The CIK-mappings sync endpoint doesn't exist. Trying a direct approach...</span>`;
+                        
+                        // Try to fetch the company tickers directly
+                        const tickersResponse = await fetch('https://www.sec.gov/include/ticker.txt', {
+                            headers: {
+                                'User-Agent': 'SEC Dashboard (youremail@email.com, +90-XXX-XXX-XXXX)'
+                            }
+                        });
+                        if (!tickersResponse.ok) {
+                            throw new Error(`HTTP error ${tickersResponse.status}`);
+                        }
+                        
+                        const tickersText = await tickersResponse.text();
+                        const lines = tickersText.trim().split('\n');
+                        resultDiv.innerHTML = `<span class="success">Successfully fetched CIK-ticker mappings directly from SEC</span><br>Found ${lines.length} mappings.<br>You can now sync individual companies.`;
+                        updateLastUpdated();
+                        return;
+                    }
+                    
+                    throw new Error(`HTTP error ${response.status}`);
+                }
+                
+                const data = await response.json();
+                resultDiv.innerHTML = `<span class="success">Successfully synchronized CIK-ticker mappings</span><br>Response: ${JSON.stringify(data, null, 2)}`;
+                updateLastUpdated();
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">Error syncing CIK-ticker mappings: ${error.message}</span><br>Please check the API logs for more details.`;
+            }
+        }
+        
+        document.getElementById('syncMappings').addEventListener('click', syncMappings);
+        
+        // Sync Data
+        async function syncData() {
+            const ticker = document.getElementById('ticker').value.trim().toUpperCase();
+            const forceRefresh = document.getElementById('forceRefresh').checked;
+            const resultDiv = document.getElementById('syncResult');
+            
+            if (!ticker) {
+                resultDiv.innerHTML = '<span class="error">Please enter a ticker symbol</span>';
+                return;
+            }
+            
+            resultDiv.innerHTML = `Syncing data for ${ticker}...`;
+            
+            try {
+                const response = await fetch(`${API_URL}/companies/${ticker}/sync?force_refresh=${forceRefresh}`, {
+                    method: 'POST'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error ${response.status}: ${await response.text()}`);
+                }
+                
+                const data = await response.json();
+                resultDiv.innerHTML = `<span class="success">Successfully synchronized data for ${data.name} (${data.ticker})</span><br>Response: ${JSON.stringify(data, null, 2)}`;
+                updateLastUpdated();
+                
+                // Update the company details if this is the active company
+                if (ticker === document.getElementById('companyTicker').value.trim().toUpperCase()) {
+                    getCompanyDetails();
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">Error syncing data: ${error.message}</span><br>Make sure you've synced CIK-ticker mappings first!`;
+            }
+        }
+        
+        document.getElementById('syncData').addEventListener('click', syncData);
+        
+        // Get Companies
+        async function getCompanies() {
+            const resultDiv = document.getElementById('companiesList');
+            const limit = document.getElementById('companiesLimit').value;
+            
+            resultDiv.innerHTML = 'Fetching companies...';
+            
+            try {
+                const response = await fetch(`${API_URL}/companies/?limit=${limit}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.length === 0) {
+                    resultDiv.innerHTML = 'No companies found. Please sync some data first.';
+                    return;
+                }
+                
+                resultDiv.innerHTML = `<span class="success">Found ${data.length} companies</span><br>Response: ${JSON.stringify(data, null, 2)}`;
+                updateLastUpdated();
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">Error fetching companies: ${error.message}</span>`;
+            }
+        }
+        
+        document.getElementById('getCompanies').addEventListener('click', getCompanies);
+        
+        // Get Company Details
+        async function getCompanyDetails() {
+            const ticker = document.getElementById('companyTicker').value.trim().toUpperCase();
+            const resultDiv = document.getElementById('companyDetails');
+            
+            if (!ticker) {
+                resultDiv.innerHTML = '<span class="error">Please enter a ticker symbol</span>';
+                return;
+            }
+            
+            lastActiveCompanyTicker = ticker;
+            resultDiv.innerHTML = `Fetching details for ${ticker}...`;
+            
+            try {
+                const response = await fetch(`${API_URL}/companies/${ticker}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error ${response.status}`);
+                }
+                
+                const data = await response.json();
+                resultDiv.innerHTML = `<span class="success">Company details for ${data.ticker}</span><br>Response: ${JSON.stringify(data, null, 2)}`;
+                updateLastUpdated();
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">Error fetching company details: ${error.message}</span>`;
+            }
+        }
+        
+        document.getElementById('getCompany').addEventListener('click', getCompanyDetails);
+        
+        // Get Company 10-K Filings
+        async function getCompany10KFilings() {
+            const ticker = document.getElementById('filingsTicker').value.trim().toUpperCase();
+            const limit = document.getElementById('filingsLimit').value;
+            const resultDiv = document.getElementById('filingsList');
+            
+            if (!ticker) {
+                resultDiv.innerHTML = '<span class="error">Please enter a ticker symbol</span>';
+                return;
+            }
+            
+            resultDiv.innerHTML = `Fetching 10-K filings for ${ticker}...`;
+            
+            try {
+                const response = await fetch(`${API_URL}/companies/${ticker}/10k?limit=${limit}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (!data.filings || data.filings.length === 0) {
+                    resultDiv.innerHTML = `No 10-K filings found for ${ticker}.`;
+                    return;
+                }
+                
+                // Format the filings as a table
+                let html = `<span class="success">Found ${data.filings.length} 10-K filings for ${data.name} (${data.ticker})</span><br><br>`;
+                
+                html += '<table style="width:100%; border-collapse: collapse;">';
+                html += '<tr><th style="text-align:left; padding:8px; border-bottom:1px solid var(--card-border);">Filing Date</th>';
+                html += '<th style="text-align:left; padding:8px; border-bottom:1px solid var(--card-border);">Form</th>';
+                html += '<th style="text-align:left; padding:8px; border-bottom:1px solid var(--card-border);">Accession Number</th>';
+                html += '<th style="text-align:left; padding:8px; border-bottom:1px solid var(--card-border);">Actions</th></tr>';
+                
+                data.filings.forEach(filing => {
+                    html += `<tr>
+                        <td style="padding:8px; border-bottom:1px solid var(--card-border);">${filing.filingDate}</td>
+                        <td style="padding:8px; border-bottom:1px solid var(--card-border);">${filing.form}</td>
+                        <td style="padding:8px; border-bottom:1px solid var(--card-border);">${filing.accessionNumber}</td>
+                        <td style="padding:8px; border-bottom:1px solid var(--card-border);">
+                            <a href="${filing.edgarUrl}" target="_blank" style="color:var(--button-bg);">View Filing</a>
+                        </td>
+                    </tr>`;
+                });
+                
+                html += '</table>';
+                resultDiv.innerHTML = html;
+                updateLastUpdated();
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">Error fetching 10-K filings: ${error.message}</span>`;
+            }
+        }
+        
+        document.getElementById('getFilings').addEventListener('click', getCompany10KFilings);
+        
+        // Auto-refresh functionality
+        function setupAutoRefresh() {
+            const refreshSelect = document.getElementById('refreshInterval');
+            
+            refreshSelect.addEventListener('change', () => {
+                const interval = parseInt(refreshSelect.value, 10);
+                
+                // Clear existing interval if any
+                if (refreshIntervalId) {
+                    clearInterval(refreshIntervalId);
+                    refreshIntervalId = null;
+                }
+                
+                // Set new interval if not "Off"
+                if (interval > 0) {
+                    refreshIntervalId = setInterval(refreshData, interval * 1000);
+                    console.log(`Auto-refresh set to ${interval} seconds`);
+                } else {
+                    console.log('Auto-refresh turned off');
+                }
+            });
+            
+            // Trigger the change event to set up initial interval
+            refreshSelect.dispatchEvent(new Event('change'));
+        }
+        
+        // Refresh data based on what's currently active
+        async function refreshData() {
+            console.log('Auto-refreshing data...');
+            
+            // Always check API status
+            const apiIsOnline = await checkApiStatus();
+            
+            if (!apiIsOnline) {
+                console.log('API is offline, skipping other refreshes');
+                return;
+            }
+            
+            // Refresh company details if a ticker is entered
+            const companyTicker = document.getElementById('companyTicker').value.trim().toUpperCase();
+            if (companyTicker) {
+                getCompanyDetails();
+            }
+            
+            // Refresh companies list if it's been loaded before
+            const companiesList = document.getElementById('companiesList');
+            if (companiesList.textContent && !companiesList.textContent.includes('Fetching companies...')) {
+                getCompanies();
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            checkApiStatus();
+            setupAutoRefresh();
+        });
+    </script>
+</body>
+</html> 
