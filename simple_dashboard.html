@@ -385,18 +385,18 @@
                         resultDiv.innerHTML = `<span class="warning">The CIK-mappings sync endpoint doesn't exist. Trying a direct approach...</span>`;
                         
                         // Try to fetch the company tickers directly
-                        const tickersResponse = await fetch('https://www.sec.gov/include/ticker.txt', {
+                        const tickersResponse = await fetch('https://www.sec.gov/files/company_tickers.json', {
                             headers: {
-                                'User-Agent': 'SEC Dashboard (youremail@email.com, +90-XXX-XXX-XXXX)'
+                                'User-Agent': 'SEC Dashboard'
                             }
                         });
                         if (!tickersResponse.ok) {
                             throw new Error(`HTTP error ${tickersResponse.status}`);
                         }
                         
-                        const tickersText = await tickersResponse.text();
-                        const lines = tickersText.trim().split('\n');
-                        resultDiv.innerHTML = `<span class="success">Successfully fetched CIK-ticker mappings directly from SEC</span><br>Found ${lines.length} mappings.<br>You can now sync individual companies.`;
+                        const tickersData = await tickersResponse.json();
+                        const companies = Object.values(tickersData);
+                        resultDiv.innerHTML = `<span class="success">Successfully fetched CIK-ticker mappings directly from SEC</span><br>Found ${companies.length} mappings.<br>You can now sync individual companies.`;
                         updateLastUpdated();
                         return;
                     }

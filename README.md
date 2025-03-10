@@ -64,6 +64,17 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+3. Set up environment variables:
+Create a `.env` file in the root directory with the following variables:
+```
+# SEC API Configuration
+SEC_API_NAME=SEC Dashboard
+SEC_API_EMAIL=your-email@example.com
+SEC_API_PHONE=+1-555-123-4567
+```
+
+These environment variables are used to construct the User-Agent header for SEC API requests. The SEC requires a User-Agent with contact information in a specific format.
+
 ## Running the Application
 
 ### Running the Full Application (API + Streamlit)

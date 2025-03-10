@@ -37,7 +37,14 @@ def get_sec_api_service(user_agent: Optional[str] = None) -> SECAPIService:
     """Get the SEC API service."""
     # SEC requires a User-Agent with contact information in a specific format:
     # Name of organization/individual (contact email, telephone)
-    default_user_agent = "Name Surname (youremail@email.com, +90-XXX-XXX-XXXX)"
+    
+    # Get user agent components from environment variables
+    sec_api_name = os.environ.get("SEC_API_NAME", "SEC Dashboard")
+    sec_api_email = os.environ.get("SEC_API_EMAIL", "contact@example.com")
+    sec_api_phone = os.environ.get("SEC_API_PHONE", "")
+    
+    # Construct the default user agent
+    default_user_agent = f"{sec_api_name} ({sec_api_email}, {sec_api_phone})"
     
     # Check for User-Agent in environment variables
     env_user_agent = os.environ.get("SEC_API_USER_AGENT")

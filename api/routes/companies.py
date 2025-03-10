@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import List, Dict, Any, Optional
 from datetime import datetime
+import os
 
 from models.financial_metric import MetricPeriod
 from repositories.company_repository import CompanyRepository
@@ -157,9 +158,18 @@ async def get_company_10k_filings(
         
         # Fetch submissions data from SEC
         import requests
+        
+        # Get user agent components from environment variables
+        sec_api_name = os.environ.get("SEC_API_NAME", "SEC Dashboard")
+        sec_api_email = os.environ.get("SEC_API_EMAIL", "contact@example.com")
+        sec_api_phone = os.environ.get("SEC_API_PHONE", "")
+        
+        # Construct the user agent or use the environment variable if available
+        user_agent = os.environ.get("SEC_API_USER_AGENT") or f"{sec_api_name} ({sec_api_email}, {sec_api_phone})"
+        
         url = f"https://data.sec.gov/submissions/CIK{cik_padded}.json"
         headers = {
-            "User-Agent": "SEC Dashboard (youremail@email.com, +XX-XXX-XXX-XXXX)"
+            "User-Agent": user_agent
         }
         
         response = requests.get(url, headers=headers)

@@ -1,10 +1,21 @@
 import json
 import sys
+import os
+from dotenv import load_dotenv
 from services.sec_api_service import SECAPIService
+
+# Load environment variables
+load_dotenv()
+
+# Get user agent from environment variables or use a default
+sec_api_name = os.getenv("SEC_API_NAME", "SEC Dashboard")
+sec_api_email = os.getenv("SEC_API_EMAIL", "")
+sec_api_phone = os.getenv("SEC_API_PHONE", "")
+user_agent = f"{sec_api_name} ({sec_api_email}, {sec_api_phone})"
 
 # Initialize the SEC API service
 sec_service = SECAPIService(
-    user_agent="SEC Dashboard (youremail@email.com, +90-XXX-XXX-XXXX)"
+    user_agent=user_agent
 )
 
 def get_ticker_cik_mappings():
@@ -12,6 +23,13 @@ def get_ticker_cik_mappings():
     try:
         # Use the service to get company tickers
         mappings = sec_service.get_company_tickers(force_refresh=False)
+        
+        # Check if the mappings are nested in a 'data' field (from cache)
+        if isinstance(mappings, dict) and len(mappings) == 0:
+            # Empty mappings
+            return {}
+        
+        # Return the mappings directly
         return mappings
     except Exception as e:
         print(f"Error fetching ticker-CIK mappings: {e}")
@@ -21,14 +39,30 @@ def get_company_info(ticker):
     """Get company information for a specific ticker."""
     mappings = get_ticker_cik_mappings()
     
+    print(f"Mappings type: {type(mappings)}")
+    print(f"Mappings keys: {list(mappings.keys())[:5] if isinstance(mappings, dict) else 'Not a dict'}")
+    
     if not ticker.upper() in mappings:
+        print(f"Ticker {ticker.upper()} not found in mappings")
         return {"error": f"Ticker {ticker} not found in SEC database"}
     
-    cik = mappings[ticker.upper()]
+    # Get the company data from the mappings
+    company_data = mappings[ticker.upper()]
+    print(f"Company data for {ticker.upper()}: {company_data}")
+    
+    # Extract the CIK from the company data
+    if isinstance(company_data, dict) and "cik" in company_data:
+        cik = company_data["cik"]
+    else:
+        # Handle the case where company_data is the CIK itself
+        cik = company_data
+    
+    print(f"CIK for {ticker.upper()}: {cik}")
     
     try:
         # Use the service to get company submissions
         submissions = sec_service.get_company_submissions(cik)
+        print(f"Submissions for {ticker.upper()}: {submissions.keys() if isinstance(submissions, dict) else 'Not a dict'}")
         
         # Extract relevant information
         company_info = {
@@ -44,6 +78,7 @@ def get_company_info(ticker):
         
         return company_info
     except Exception as e:
+        print(f"Error in get_company_info for {ticker.upper()}: {e}")
         return {"error": f"Error fetching company info: {e}"}
 
 def get_company_10k_filings(ticker, limit=5):
@@ -53,7 +88,15 @@ def get_company_10k_filings(ticker, limit=5):
     if not ticker.upper() in mappings:
         return {"error": f"Ticker {ticker} not found in SEC database"}
     
-    cik = mappings[ticker.upper()]
+    # Get the company data from the mappings
+    company_data = mappings[ticker.upper()]
+    
+    # Extract the CIK from the company data
+    if isinstance(company_data, dict) and "cik" in company_data:
+        cik = company_data["cik"]
+    else:
+        # Handle the case where company_data is the CIK itself
+        cik = company_data
     
     try:
         # Use the service to get company submissions

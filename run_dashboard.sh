@@ -3,8 +3,23 @@
 # SEC Dashboard Runner Script
 # This script provides a unified way to run different components of the SEC Dashboard
 
-# Set the user agent as an environment variable
-export SEC_API_USER_AGENT="SEC Dashboard (youremail@email.com, +90-XXX-XXX-XXXX)"
+# Load environment variables from .env file if it exists
+if [ -f .env ]; then
+    export $(grep -v '^#' .env | xargs)
+    
+    # Construct the user agent from environment variables
+    if [ -n "$SEC_API_NAME" ] && [ -n "$SEC_API_EMAIL" ] && [ -n "$SEC_API_PHONE" ]; then
+        export SEC_API_USER_AGENT="$SEC_API_NAME ($SEC_API_EMAIL, $SEC_API_PHONE)"
+    else
+        # Fallback to a generic user agent if environment variables are not set
+        export SEC_API_USER_AGENT="SEC Dashboard (contact@example.com)"
+    fi
+else
+    echo "Warning: .env file not found. Using default values."
+    export SEC_API_USER_AGENT="SEC Dashboard (contact@example.com)"
+fi
+
+echo "Using User-Agent: $SEC_API_USER_AGENT"
 
 # Function to display usage information
 show_usage() {
