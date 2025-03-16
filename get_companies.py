@@ -174,6 +174,104 @@ def get_all_companies(limit=20):
     
     return companies
 
+def get_company_facts(ticker):
+    """Get financial facts for a specific company from the SEC's Company Facts API."""
+    mappings = get_ticker_cik_mappings()
+    
+    if not ticker.upper() in mappings:
+        return {"error": f"Ticker {ticker} not found in SEC database"}
+    
+    # Get the company data from the mappings
+    company_data = mappings[ticker.upper()]
+    
+    # Extract the CIK from the company data
+    if isinstance(company_data, dict) and "cik" in company_data:
+        cik = company_data["cik"]
+    else:
+        # Handle the case where company_data is the CIK itself
+        cik = company_data
+    
+    try:
+        # Use the service to get company facts
+        facts = sec_service.get_company_facts(cik)
+        
+        if not facts or "facts" not in facts:
+            return {"error": "No financial facts found for this company"}
+        
+        # Extract and organize the facts
+        organized_facts = {
+            "ticker": ticker.upper(),
+            "cik": cik,
+            "name": facts.get("entityName", ""),
+            "taxonomy_data": {}
+        }
+        
+        # Process the facts data
+        for taxonomy, concepts in facts.get("facts", {}).items():
+            organized_facts["taxonomy_data"][taxonomy] = {}
+            
+            for concept, data in concepts.items():
+                # Get the units available for this concept
+                units = data.get("units", {})
+                
+                # Store data for each unit
+                for unit, values in units.items():
+                    if unit not in organized_facts["taxonomy_data"][taxonomy]:
+                        organized_facts["taxonomy_data"][taxonomy][unit] = {}
+                    
+                    # Store the concept data
+                    organized_facts["taxonomy_data"][taxonomy][unit][concept] = values
+        
+        # Add some common financial metrics for easy access
+        common_metrics = {}
+        
+        # Try to get metrics from us-gaap taxonomy with USD unit
+        if "us-gaap" in organized_facts["taxonomy_data"] and "USD" in organized_facts["taxonomy_data"]["us-gaap"]:
+            us_gaap_usd = organized_facts["taxonomy_data"]["us-gaap"]["USD"]
+            
+            # Revenue metrics
+            if "Revenue" in us_gaap_usd:
+                common_metrics["Revenue"] = us_gaap_usd["Revenue"]
+            elif "SalesRevenueNet" in us_gaap_usd:
+                common_metrics["Revenue"] = us_gaap_usd["SalesRevenueNet"]
+            elif "RevenueFromContractWithCustomerExcludingAssessedTax" in us_gaap_usd:
+                common_metrics["Revenue"] = us_gaap_usd["RevenueFromContractWithCustomerExcludingAssessedTax"]
+            
+            # Net Income metrics
+            if "NetIncomeLoss" in us_gaap_usd:
+                common_metrics["NetIncome"] = us_gaap_usd["NetIncomeLoss"]
+            
+            # Operating Expenses metrics
+            if "OperatingExpenses" in us_gaap_usd:
+                common_metrics["OperatingExpenses"] = us_gaap_usd["OperatingExpenses"]
+            elif "CostsAndExpenses" in us_gaap_usd:
+                common_metrics["OperatingExpenses"] = us_gaap_usd["CostsAndExpenses"]
+            
+            # Balance Sheet metrics
+            if "Assets" in us_gaap_usd:
+                common_metrics["TotalAssets"] = us_gaap_usd["Assets"]
+            
+            if "Liabilities" in us_gaap_usd:
+                common_metrics["TotalLiabilities"] = us_gaap_usd["Liabilities"]
+            
+            # Debt metrics
+            if "LongTermDebt" in us_gaap_usd:
+                common_metrics["LongTermDebt"] = us_gaap_usd["LongTermDebt"]
+            elif "LongTermDebtNoncurrent" in us_gaap_usd:
+                common_metrics["LongTermDebt"] = us_gaap_usd["LongTermDebtNoncurrent"]
+            
+            # Equity metrics
+            if "StockholdersEquity" in us_gaap_usd:
+                common_metrics["StockholdersEquity"] = us_gaap_usd["StockholdersEquity"]
+            elif "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest" in us_gaap_usd:
+                common_metrics["StockholdersEquity"] = us_gaap_usd["StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest"]
+        
+        organized_facts["common_metrics"] = common_metrics
+        
+        return organized_facts
+    except Exception as e:
+        return {"error": f"Error fetching company facts: {e}"}
+
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         # If ticker is provided as argument, get specific company info

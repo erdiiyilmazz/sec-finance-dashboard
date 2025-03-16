@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple SEC Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <style>
         :root {
             --bg-color: #ffffff;
@@ -349,6 +350,37 @@
             </div>
             <button id="getCompany">Get Company Details</button>
             <div id="companyDetails" class="result"></div>
+        </div>
+        
+        <div class="card">
+            <h2>Financial Facts</h2>
+            <div class="form-group">
+                <label for="factsTicker">Ticker Symbol:</label>
+                <input type="text" id="factsTicker" placeholder="e.g., AAPL">
+            </div>
+            <button id="getFacts">Get Financial Facts</button>
+            <div id="factsResult" class="result"></div>
+            <div id="financialCharts" style="display: none;">
+                <h3>Financial Charts</h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+                    <div style="width: 48%; min-width: 300px;">
+                        <h4>Revenue Trends (10 Years)</h4>
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                    <div style="width: 48%; min-width: 300px;">
+                        <h4>Net Income vs. Operating Expenses</h4>
+                        <canvas id="incomeExpensesChart"></canvas>
+                    </div>
+                    <div style="width: 48%; min-width: 300px;">
+                        <h4>Assets vs Liabilities</h4>
+                        <canvas id="balanceSheetChart"></canvas>
+                    </div>
+                    <div style="width: 48%; min-width: 300px;">
+                        <h4>Debt-to-Equity Ratio</h4>
+                        <canvas id="debtEquityChart"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <div class="card">
@@ -1138,6 +1170,547 @@
                 parent.removeChild(highlight);
             });
         }
+        
+        // Get Company Financial Facts
+        async function getCompanyFacts() {
+            const ticker = document.getElementById('factsTicker').value.trim().toUpperCase();
+            const resultDiv = document.getElementById('factsResult');
+            
+            if (!ticker) {
+                resultDiv.innerHTML = '<span class="error">Please enter a ticker symbol</span>';
+                return;
+            }
+            
+            resultDiv.innerHTML = `Fetching financial facts for ${ticker}...`;
+            document.getElementById('financialCharts').style.display = 'none';
+            
+            try {
+                const response = await fetch(`${API_URL}/companies/${ticker}/facts`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Display a summary of the facts
+                let html = `<span class="success">Financial facts for ${data.name} (${data.ticker})</span><br><br>`;
+                
+                // Check if we have common metrics
+                if (data.common_metrics && Object.keys(data.common_metrics).length > 0) {
+                    html += '<h3>Common Financial Metrics</h3>';
+                    html += '<table style="width:100%; border-collapse: collapse;">';
+                    html += '<tr><th style="text-align:left; padding:8px; border-bottom:1px solid var(--card-border);">Metric</th>';
+                    html += '<th style="text-align:left; padding:8px; border-bottom:1px solid var(--card-border);">Latest Value</th>';
+                    html += '<th style="text-align:left; padding:8px; border-bottom:1px solid var(--card-border);">Latest Period</th></tr>';
+                    
+                    for (const [metric, values] of Object.entries(data.common_metrics)) {
+                        if (values && values.length > 0) {
+                            // Sort values by end date (descending)
+                            const sortedValues = [...values].sort((a, b) => 
+                                new Date(b.end) - new Date(a.end)
+                            );
+                            
+                            const latestValue = sortedValues[0];
+                            
+                            html += `<tr>
+                                <td style="padding:8px; border-bottom:1px solid var(--card-border);">${metric}</td>
+                                <td style="padding:8px; border-bottom:1px solid var(--card-border);">$${formatNumber(latestValue.val)}</td>
+                                <td style="padding:8px; border-bottom:1px solid var(--card-border);">${latestValue.end}</td>
+                            </tr>`;
+                        }
+                    }
+                    
+                    html += '</table>';
+                    
+                    // Show the charts
+                    document.getElementById('financialCharts').style.display = 'block';
+                    
+                    // Create charts
+                    createFinancialCharts(data.common_metrics);
+                } else {
+                    html += '<p>No common financial metrics found for this company.</p>';
+                }
+                
+                // Add a section for available taxonomies
+                html += '<h3>Available Data Taxonomies</h3>';
+                html += '<ul>';
+                for (const taxonomy of Object.keys(data.taxonomy_data)) {
+                    html += `<li>${taxonomy}</li>`;
+                }
+                html += '</ul>';
+                
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">Error fetching financial facts: ${error.message}</span>`;
+            }
+        }
+        
+        // Function to create financial charts
+        function createFinancialCharts(metrics) {
+            // Create Revenue Chart (10 years)
+            if (metrics.Revenue && metrics.Revenue.length > 0) {
+                createRevenueChart('revenueChart', metrics.Revenue);
+            }
+            
+            // Create Net Income vs Operating Expenses Chart
+            if ((metrics.NetIncome && metrics.NetIncome.length > 0) || 
+                (metrics.OperatingExpenses && metrics.OperatingExpenses.length > 0)) {
+                createIncomeExpensesChart('incomeExpensesChart', metrics.NetIncome, metrics.OperatingExpenses);
+            }
+            
+            // Create Balance Sheet Chart
+            if ((metrics.TotalAssets && metrics.TotalAssets.length > 0) || 
+                (metrics.TotalLiabilities && metrics.TotalLiabilities.length > 0)) {
+                createBalanceSheetChart('balanceSheetChart', metrics.TotalAssets, metrics.TotalLiabilities);
+            }
+            
+            // Create Debt-to-Equity Ratio Chart
+            if ((metrics.LongTermDebt && metrics.LongTermDebt.length > 0) && 
+                (metrics.StockholdersEquity && metrics.StockholdersEquity.length > 0)) {
+                createDebtEquityChart('debtEquityChart', metrics.LongTermDebt, metrics.StockholdersEquity);
+            }
+        }
+        
+        // Function to create a revenue chart (10 years)
+        function createRevenueChart(canvasId, revenueData) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // Clear any existing chart
+            if (window[canvasId + 'Chart']) {
+                window[canvasId + 'Chart'].destroy();
+            }
+            
+            // Sort data by end date
+            const sortedData = [...revenueData].sort((a, b) => new Date(a.end) - new Date(b.end));
+            
+            // Get only annual data (filter out quarterly reports)
+            const annualData = sortedData.filter(item => {
+                // Check if the form is 10-K (annual) by looking at the frame property
+                return item.frame && (item.frame.includes('CY') || item.frame.includes('FY'));
+            });
+            
+            // Get the last 10 years of data
+            const last10YearsData = annualData.slice(-10);
+            
+            // Extract dates and values
+            const dates = last10YearsData.map(item => {
+                // Format the date to show just the year
+                const date = new Date(item.end);
+                return date.getFullYear().toString();
+            });
+            const values = last10YearsData.map(item => item.val);
+            
+            // Calculate year-over-year growth rates
+            const growthRates = [];
+            for (let i = 1; i < values.length; i++) {
+                const previousValue = values[i-1];
+                const currentValue = values[i];
+                const growthRate = previousValue !== 0 ? ((currentValue - previousValue) / previousValue) * 100 : 0;
+                growthRates.push(growthRate.toFixed(1) + '%');
+            }
+            growthRates.unshift(''); // Add empty string for the first year (no growth rate)
+            
+            // Create the chart
+            window[canvasId + 'Chart'] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Revenue',
+                        data: values,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 2,
+                        yAxisID: 'y'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Revenue (USD)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + formatNumber(value);
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Year'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = 'Revenue: $' + formatNumber(context.raw);
+                                    if (context.dataIndex > 0) {
+                                        label += '\nYoY Growth: ' + growthRates[context.dataIndex];
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Function to create a net income vs operating expenses chart
+        function createIncomeExpensesChart(canvasId, netIncomeData, operatingExpensesData) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // Clear any existing chart
+            if (window[canvasId + 'Chart']) {
+                window[canvasId + 'Chart'].destroy();
+            }
+            
+            // Get all unique dates
+            const allDates = new Set();
+            
+            if (netIncomeData) {
+                netIncomeData.forEach(item => allDates.add(item.end));
+            }
+            
+            if (operatingExpensesData) {
+                operatingExpensesData.forEach(item => allDates.add(item.end));
+            }
+            
+            // Sort dates
+            const sortedDates = Array.from(allDates).sort((a, b) => new Date(a) - new Date(b));
+            
+            // Get only the last 10 years
+            const last10Years = sortedDates.slice(-10);
+            
+            // Format dates to show just the year
+            const formattedDates = last10Years.map(date => {
+                const dateObj = new Date(date);
+                return dateObj.getFullYear().toString();
+            });
+            
+            // Prepare datasets
+            const datasets = [];
+            
+            if (netIncomeData) {
+                // Create a map of date to value for net income
+                const netIncomeMap = new Map();
+                netIncomeData.forEach(item => netIncomeMap.set(item.end, item.val));
+                
+                // Create net income dataset
+                datasets.push({
+                    label: 'Net Income',
+                    data: last10Years.map(date => netIncomeMap.get(date) || null),
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    type: 'line'
+                });
+            }
+            
+            if (operatingExpensesData) {
+                // Create a map of date to value for operating expenses
+                const operatingExpensesMap = new Map();
+                operatingExpensesData.forEach(item => operatingExpensesMap.set(item.end, item.val));
+                
+                // Create operating expenses dataset
+                datasets.push({
+                    label: 'Operating Expenses',
+                    data: last10Years.map(date => operatingExpensesMap.get(date) || null),
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 2,
+                    type: 'bar'
+                });
+            }
+            
+            // Create the chart
+            window[canvasId + 'Chart'] = new Chart(ctx, {
+                type: 'bar', // This will be overridden by the individual dataset types
+                data: {
+                    labels: formattedDates,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Amount (USD)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + formatNumber(value);
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Year'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': $' + formatNumber(context.raw);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Function to create a debt-to-equity ratio chart
+        function createDebtEquityChart(canvasId, debtData, equityData) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // Clear any existing chart
+            if (window[canvasId + 'Chart']) {
+                window[canvasId + 'Chart'].destroy();
+            }
+            
+            // Get all unique dates where both debt and equity data exist
+            const commonDates = [];
+            const debtMap = new Map();
+            const equityMap = new Map();
+            
+            // Create maps for quick lookup
+            if (debtData) {
+                debtData.forEach(item => debtMap.set(item.end, item.val));
+            }
+            
+            if (equityData) {
+                equityData.forEach(item => equityMap.set(item.end, item.val));
+            }
+            
+            // Find dates where both debt and equity data exist
+            for (const date of debtMap.keys()) {
+                if (equityMap.has(date) && equityMap.get(date) !== 0) {
+                    commonDates.push(date);
+                }
+            }
+            
+            // Sort dates
+            const sortedDates = commonDates.sort((a, b) => new Date(a) - new Date(b));
+            
+            // Get only the last 10 years
+            const last10Years = sortedDates.slice(-10);
+            
+            // Format dates to show just the year
+            const formattedDates = last10Years.map(date => {
+                const dateObj = new Date(date);
+                return dateObj.getFullYear().toString();
+            });
+            
+            // Calculate debt-to-equity ratios
+            const ratios = last10Years.map(date => {
+                const debt = debtMap.get(date) || 0;
+                const equity = equityMap.get(date) || 1; // Avoid division by zero
+                return debt / equity;
+            });
+            
+            // Create the chart
+            window[canvasId + 'Chart'] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: formattedDates,
+                    datasets: [{
+                        label: 'Debt-to-Equity Ratio',
+                        data: ratios,
+                        backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                        borderColor: 'rgba(153, 102, 255, 1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Ratio'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(2) + 'x';
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Year'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const index = context.dataIndex;
+                                    const date = last10Years[index];
+                                    const debt = debtMap.get(date) || 0;
+                                    const equity = equityMap.get(date) || 0;
+                                    const ratio = context.raw;
+                                    
+                                    return [
+                                        `Debt-to-Equity: ${ratio.toFixed(2)}x`,
+                                        `Long-Term Debt: $${formatNumber(debt)}`,
+                                        `Stockholders' Equity: $${formatNumber(equity)}`
+                                    ];
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Function to create a balance sheet chart
+        function createBalanceSheetChart(canvasId, assetsData, liabilitiesData) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // Clear any existing chart
+            if (window[canvasId + 'Chart']) {
+                window[canvasId + 'Chart'].destroy();
+            }
+            
+            // Get all unique dates
+            const allDates = new Set();
+            
+            if (assetsData) {
+                assetsData.forEach(item => allDates.add(item.end));
+            }
+            
+            if (liabilitiesData) {
+                liabilitiesData.forEach(item => allDates.add(item.end));
+            }
+            
+            // Sort dates
+            const sortedDates = Array.from(allDates).sort((a, b) => new Date(a) - new Date(b));
+            
+            // Get only the last 10 years
+            const last10Years = sortedDates.slice(-10);
+            
+            // Format dates to show just the year
+            const formattedDates = last10Years.map(date => {
+                const dateObj = new Date(date);
+                return dateObj.getFullYear().toString();
+            });
+            
+            // Prepare datasets
+            const datasets = [];
+            
+            if (assetsData) {
+                // Create a map of date to value for assets
+                const assetsMap = new Map();
+                assetsData.forEach(item => assetsMap.set(item.end, item.val));
+                
+                // Create assets dataset
+                datasets.push({
+                    label: 'Total Assets',
+                    data: last10Years.map(date => assetsMap.get(date) || null),
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2
+                });
+            }
+            
+            if (liabilitiesData) {
+                // Create a map of date to value for liabilities
+                const liabilitiesMap = new Map();
+                liabilitiesData.forEach(item => liabilitiesMap.set(item.end, item.val));
+                
+                // Create liabilities dataset
+                datasets.push({
+                    label: 'Total Liabilities',
+                    data: last10Years.map(date => liabilitiesMap.get(date) || null),
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 2
+                });
+            }
+            
+            // Create the chart
+            window[canvasId + 'Chart'] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: formattedDates,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Amount (USD)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + formatNumber(value);
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Year'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': $' + formatNumber(context.raw);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Helper function to format numbers
+        function formatNumber(num) {
+            if (num === null || num === undefined) {
+                return 'N/A';
+            }
+            
+            if (Math.abs(num) >= 1e9) {
+                return (num / 1e9).toFixed(2) + 'B';
+            } else if (Math.abs(num) >= 1e6) {
+                return (num / 1e6).toFixed(2) + 'M';
+            } else if (Math.abs(num) >= 1e3) {
+                return (num / 1e3).toFixed(2) + 'K';
+            } else {
+                return num.toFixed(2);
+            }
+        }
+        
+        document.getElementById('getFacts').addEventListener('click', getCompanyFacts);
     </script>
 </body>
 </html> 
