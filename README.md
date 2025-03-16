@@ -88,7 +88,7 @@ python main.py --component both
 The simple dashboard provides a lightweight alternative to the Streamlit dashboard.
 
 ```bash
-# Run everything (both APIs and dashboard)
+# Run everything (both API and dashboard)
 ./run_dashboard.sh
 
 # Run only the simple API
@@ -97,14 +97,84 @@ The simple dashboard provides a lightweight alternative to the Streamlit dashboa
 # Run only the dashboard
 ./run_dashboard.sh --dashboard
 
-# Run both APIs (simple and complex)
-./run_dashboard.sh --both-apis
+# Stop all running servers
+./run_dashboard.sh --stop
 
 # Show help
 ./run_dashboard.sh --help
 ```
 
 The dashboard will be available at: http://localhost:8080/simple_dashboard.html
+
+#### Troubleshooting
+
+If you encounter any issues starting the application:
+
+1. Check if any required dependencies are missing:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. Check if the ports are already in use:
+   ```bash
+   # Check if port 8001 (API) is in use
+   lsof -i:8001
+   
+   # Check if port 8080 (Dashboard) is in use
+   lsof -i:8080
+   ```
+
+3. Stop all running servers and start again:
+   ```bash
+   ./run_dashboard.sh --stop
+   ./run_dashboard.sh
+   ```
+
+4. Check the log files for errors:
+   ```bash
+   # Check API logs
+   cat simple_api_logs.txt
+   
+   # Check dashboard logs
+   cat dashboard_logs.txt
+   ```
+
+5. If you see "Address already in use" errors, stop the servers and try again:
+   ```bash
+   pkill -f "python simple_api.py"
+   pkill -f "python serve_dashboard.py"
+   ./run_dashboard.sh
+   ```
+
+The improved `run_dashboard.sh` script includes automatic dependency checking, port conflict resolution, and better error handling to help you start the application more reliably.
+
+### About the Improved Dashboard Runner Script
+
+The `run_dashboard.sh` script has been enhanced with several features to make running the application more reliable:
+
+1. **Dependency Checking**: Automatically checks for required Python packages and offers to install them if missing.
+
+2. **Port Conflict Resolution**: Intelligently handles port conflicts by:
+   - Detecting if ports are already in use
+   - Reusing existing processes if they're responding correctly
+   - Attempting to stop conflicting processes if necessary
+
+3. **Better Error Handling**: Provides detailed error information when servers fail to start, including:
+   - Showing the last few lines of log files
+   - Specific error messages for different failure scenarios
+   - Robust checks to verify servers are actually responding
+
+4. **Server Management**: Includes commands to:
+   - Start individual components (API, dashboard)
+   - Start all components together
+   - Stop all running servers
+
+5. **Helpful Instructions**: Provides clear guidance on:
+   - How to access the dashboard
+   - How to stop the servers
+   - What to do if you encounter issues
+
+This script makes it much easier to start, stop, and manage the application, especially when dealing with common issues like port conflicts and missing dependencies.
 
 ## Usage
 

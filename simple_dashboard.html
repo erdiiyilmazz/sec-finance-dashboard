@@ -187,6 +187,73 @@
         .theme-icon {
             font-size: 16px;
         }
+        
+        .filing-preview-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .search-highlight {
+            background-color: yellow;
+            color: black;
+            padding: 2px;
+            border-radius: 2px;
+        }
+        
+        .search-result {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid var(--card-border);
+            border-radius: 4px;
+            background-color: var(--result-bg);
+        }
+        
+        .search-result-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .search-result-context {
+            margin-left: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        
+        .view-context-btn {
+            margin-top: 5px;
+            background-color: var(--button-bg);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .view-context-btn:hover {
+            background-color: var(--button-hover);
+        }
+        
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: var(--button-bg);
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        [data-theme="dark"] .search-highlight {
+            background-color: #ffeb3b;
+            color: black;
+        }
     </style>
 </head>
 <body>
@@ -299,8 +366,40 @@
                     <option value="20">20 filings</option>
                 </select>
             </div>
+            <div class="form-group">
+                <label for="keywordSearch">Search within filings:</label>
+                <input type="text" id="keywordSearch" placeholder="e.g., risk factors, revenue">
+            </div>
             <button id="getFilings">Get 10-K Filings</button>
             <div id="filingsList" class="result"></div>
+            <div id="filingPreview" style="display: none; margin-top: 20px;">
+                <h3>Document Preview</h3>
+                <div class="form-group">
+                    <button id="closePreview" style="background-color: #f44336;">Close Preview</button>
+                    <div class="common-sections" style="margin-top: 10px;">
+                        <label>Jump to section:</label>
+                        <select id="jumpToSection" style="margin-left: 10px;">
+                            <option value="">Select a section...</option>
+                            <option value="Risk Factors">Risk Factors</option>
+                            <option value="Management's Discussion">Management's Discussion & Analysis</option>
+                            <option value="Financial Statements">Financial Statements</option>
+                            <option value="Controls and Procedures">Controls and Procedures</option>
+                            <option value="Executive Compensation">Executive Compensation</option>
+                            <option value="Legal Proceedings">Legal Proceedings</option>
+                        </select>
+                        <button id="jumpToSectionBtn" style="margin-left: 10px;">Go</button>
+                    </div>
+                    <div class="search-in-preview" style="margin-top: 10px;">
+                        <label>Search in preview:</label>
+                        <input type="text" id="searchInPreview" placeholder="Enter search term" style="margin-left: 10px;">
+                        <button id="searchInPreviewBtn" style="margin-left: 10px;">Search</button>
+                        <span id="searchInPreviewResults" style="margin-left: 10px;"></span>
+                        <button id="searchInPreviewNext" style="margin-left: 5px; display: none;">Next</button>
+                        <button id="searchInPreviewPrev" style="margin-left: 5px; display: none;">Previous</button>
+                    </div>
+                </div>
+                <div id="previewContent" style="border: 1px solid var(--card-border); border-radius: 4px; height: 600px; overflow: hidden;"></div>
+            </div>
         </div>
     </div>
     
@@ -515,6 +614,7 @@
         async function getCompany10KFilings() {
             const ticker = document.getElementById('filingsTicker').value.trim().toUpperCase();
             const limit = document.getElementById('filingsLimit').value;
+            const keyword = document.getElementById('keywordSearch').value.trim();
             const resultDiv = document.getElementById('filingsList');
             
             if (!ticker) {
@@ -538,6 +638,9 @@
                     return;
                 }
                 
+                // Store filings data globally for later use
+                window.currentFilings = data.filings;
+                
                 // Format the filings as a table
                 let html = `<span class="success">Found ${data.filings.length} 10-K filings for ${data.name} (${data.ticker})</span><br><br>`;
                 
@@ -547,22 +650,282 @@
                 html += '<th style="text-align:left; padding:8px; border-bottom:1px solid var(--card-border);">Accession Number</th>';
                 html += '<th style="text-align:left; padding:8px; border-bottom:1px solid var(--card-border);">Actions</th></tr>';
                 
-                data.filings.forEach(filing => {
+                data.filings.forEach((filing, index) => {
                     html += `<tr>
                         <td style="padding:8px; border-bottom:1px solid var(--card-border);">${filing.filingDate}</td>
                         <td style="padding:8px; border-bottom:1px solid var(--card-border);">${filing.form}</td>
                         <td style="padding:8px; border-bottom:1px solid var(--card-border);">${filing.accessionNumber}</td>
                         <td style="padding:8px; border-bottom:1px solid var(--card-border);">
                             <a href="${filing.edgarUrl}" target="_blank" style="color:var(--button-bg);">View Filing</a>
+                            <button onclick="previewFiling(${index})" style="margin-left: 10px; background-color: var(--button-bg);">Preview</button>
                         </td>
                     </tr>`;
                 });
                 
                 html += '</table>';
+                
+                // If keyword is provided, add search functionality
+                if (keyword) {
+                    html += `<h3>Search Results for "${keyword}"</h3>`;
+                    html += `<div id="searchResults">
+                        <div class="loading-spinner"></div>
+                        <p>Searching for "${keyword}" in filings...</p>
+                    </div>`;
+                }
+                
                 resultDiv.innerHTML = html;
                 updateLastUpdated();
+                
+                // If keyword is provided, perform search
+                if (keyword) {
+                    searchInFilings(data.filings, keyword);
+                }
             } catch (error) {
                 resultDiv.innerHTML = `<span class="error">Error fetching 10-K filings: ${error.message}</span>`;
+            }
+        }
+        
+        // Preview a filing in an iframe
+        function previewFiling(filingIndex) {
+            const filing = window.currentFilings[filingIndex];
+            const previewDiv = document.getElementById('filingPreview');
+            const previewContent = document.getElementById('previewContent');
+            
+            // Show the preview div
+            previewDiv.style.display = 'block';
+            
+            // Scroll to the preview
+            previewDiv.scrollIntoView({ behavior: 'smooth' });
+            
+            // Create an iframe to display the filing
+            previewContent.innerHTML = `
+                <div class="loading-spinner"></div>
+                <p>Loading preview for ${filing.form} (${filing.filingDate})...</p>
+            `;
+            
+            // Create the proxy URL
+            const proxyUrl = `/sec-proxy/${encodeURIComponent(filing.edgarUrl)}`;
+            console.log("Using proxy URL:", proxyUrl);
+            
+            // First check if the proxy is working by fetching the URL
+            fetch(proxyUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    // If the fetch was successful, create the iframe
+                    setTimeout(() => {
+                        previewContent.innerHTML = `<iframe class="filing-preview-iframe" src="${proxyUrl}" title="Filing Preview"></iframe>`;
+                        
+                        // Add error handling for the iframe
+                        const iframe = document.querySelector('.filing-preview-iframe');
+                        iframe.onerror = () => {
+                            previewContent.innerHTML = `
+                                <div class="error">
+                                    <p>Error loading the filing preview.</p>
+                                    <p>You can <a href="${filing.edgarUrl}" target="_blank">view the filing directly on the SEC website</a>.</p>
+                                </div>
+                            `;
+                        };
+                    }, 100);
+                })
+                .catch(error => {
+                    console.error("Error fetching filing:", error);
+                    previewContent.innerHTML = `
+                        <div class="error">
+                            <p>Error loading the filing preview: ${error.message}</p>
+                            <p>You can <a href="${filing.edgarUrl}" target="_blank">view the filing directly on the SEC website</a>.</p>
+                            <p>Technical details: ${error.toString()}</p>
+                        </div>
+                    `;
+                });
+        }
+        
+        // Close the preview
+        document.getElementById('closePreview').addEventListener('click', function() {
+            const previewDiv = document.getElementById('filingPreview');
+            previewDiv.style.display = 'none';
+        });
+        
+        // Jump to section in the filing
+        document.getElementById('jumpToSectionBtn').addEventListener('click', function() {
+            const sectionName = document.getElementById('jumpToSection').value;
+            if (!sectionName) return;
+            
+            const iframe = document.querySelector('.filing-preview-iframe');
+            if (!iframe) return;
+            
+            // Function to search for text in the iframe
+            const searchInIframe = () => {
+                try {
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    const text = iframeDoc.body.innerText || iframeDoc.body.textContent;
+                    
+                    // Search for the section name
+                    const index = text.indexOf(sectionName);
+                    if (index === -1) {
+                        alert(`Section "${sectionName}" not found in this filing.`);
+                        return;
+                    }
+                    
+                    // Find the closest element containing the section name
+                    const allElements = iframeDoc.querySelectorAll('*');
+                    let closestElement = null;
+                    let minDistance = Number.MAX_VALUE;
+                    
+                    for (const element of allElements) {
+                        const elementText = element.innerText || element.textContent;
+                        if (elementText && elementText.includes(sectionName)) {
+                            const distance = Math.abs(text.indexOf(elementText) - index);
+                            if (distance < minDistance) {
+                                minDistance = distance;
+                                closestElement = element;
+                            }
+                        }
+                    }
+                    
+                    // Scroll to the element
+                    if (closestElement) {
+                        closestElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        
+                        // Highlight the element temporarily
+                        const originalBackground = closestElement.style.backgroundColor;
+                        const originalColor = closestElement.style.color;
+                        
+                        closestElement.style.backgroundColor = 'yellow';
+                        closestElement.style.color = 'black';
+                        
+                        setTimeout(() => {
+                            closestElement.style.backgroundColor = originalBackground;
+                            closestElement.style.color = originalColor;
+                        }, 3000);
+                    } else {
+                        alert(`Section "${sectionName}" found in text but could not locate the element.`);
+                    }
+                } catch (error) {
+                    console.error('Error searching in iframe:', error);
+                    alert(`Error searching for section: ${error.message}`);
+                }
+            };
+            
+            // If the iframe is not loaded yet, wait for it
+            if (iframe.contentDocument && iframe.contentDocument.readyState === 'complete') {
+                searchInIframe();
+            } else {
+                iframe.onload = searchInIframe;
+            }
+        });
+        
+        // Search for keywords in filings
+        async function searchInFilings(filings, keyword) {
+            const searchResultsDiv = document.getElementById('searchResults');
+            
+            try {
+                let searchResults = [];
+                let errorCount = 0;
+                
+                // For each filing, fetch the content and search for the keyword
+                for (let i = 0; i < filings.length; i++) {
+                    const filing = filings[i];
+                    
+                    try {
+                        // Create the proxy URL
+                        const proxyUrl = `/sec-proxy/${encodeURIComponent(filing.edgarUrl)}`;
+                        console.log(`Searching in filing ${i+1}/${filings.length}: ${filing.edgarUrl}`);
+                        
+                        // Fetch the filing content through our proxy
+                        const response = await fetch(proxyUrl);
+                        
+                        if (!response.ok) {
+                            console.error(`Error fetching filing ${filing.accessionNumber}: HTTP ${response.status}`);
+                            errorCount++;
+                            continue;
+                        }
+                        
+                        const html = await response.text();
+                        
+                        // Create a temporary div to parse the HTML
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = html;
+                        
+                        // Get the text content
+                        const text = tempDiv.textContent || tempDiv.innerText || '';
+                        
+                        // Search for the keyword (case insensitive)
+                        const regex = new RegExp(keyword, 'gi');
+                        let match;
+                        let matchCount = 0;
+                        const contexts = [];
+                        
+                        // Find all matches and their context
+                        while ((match = regex.exec(text)) !== null && matchCount < 5) {
+                            matchCount++;
+                            
+                            // Get context (100 characters before and after the match)
+                            const start = Math.max(0, match.index - 100);
+                            const end = Math.min(text.length, match.index + keyword.length + 100);
+                            let context = text.substring(start, end);
+                            
+                            // Highlight the keyword in the context
+                            const keywordRegex = new RegExp(keyword, 'gi');
+                            context = context.replace(keywordRegex, `<span class="search-highlight">$&</span>`);
+                            
+                            contexts.push(context);
+                        }
+                        
+                        if (matchCount > 0) {
+                            searchResults.push({
+                                filing: filing,
+                                matchCount: matchCount,
+                                contexts: contexts,
+                                filingIndex: i
+                            });
+                        }
+                    } catch (error) {
+                        console.error(`Error searching in filing ${filing.accessionNumber}:`, error);
+                        errorCount++;
+                    }
+                }
+                
+                // Display search results
+                if (searchResults.length === 0) {
+                    let message = `<p>No matches found for "${keyword}" in the filings.</p>`;
+                    if (errorCount > 0) {
+                        message += `<p class="warning">Note: Encountered errors while searching ${errorCount} filing(s). Some results may be missing.</p>`;
+                    }
+                    searchResultsDiv.innerHTML = message;
+                } else {
+                    let html = `<p>Found matches for "${keyword}" in ${searchResults.length} filings:</p>`;
+                    
+                    if (errorCount > 0) {
+                        html += `<p class="warning">Note: Encountered errors while searching ${errorCount} filing(s). Some results may be missing.</p>`;
+                    }
+                    
+                    searchResults.forEach(result => {
+                        html += `
+                            <div class="search-result">
+                                <div class="search-result-title">
+                                    ${result.filing.form} (${result.filing.filingDate}) - ${result.matchCount} matches
+                                </div>
+                                <button onclick="previewFiling(${result.filingIndex})" class="view-context-btn">Preview Filing</button>
+                                <div class="search-result-contexts">
+                        `;
+                        
+                        result.contexts.forEach(context => {
+                            html += `<div class="search-result-context">...${context}...</div>`;
+                        });
+                        
+                        html += `
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    searchResultsDiv.innerHTML = html;
+                }
+            } catch (error) {
+                searchResultsDiv.innerHTML = `<span class="error">Error searching in filings: ${error.message}</span>`;
             }
         }
         
@@ -624,6 +987,157 @@
             checkApiStatus();
             setupAutoRefresh();
         });
+        
+        // Search within the preview iframe
+        let currentSearchMatches = [];
+        let currentSearchIndex = -1;
+        
+        document.getElementById('searchInPreviewBtn').addEventListener('click', function() {
+            searchInPreview();
+        });
+        
+        // Allow pressing Enter in the search box
+        document.getElementById('searchInPreview').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchInPreview();
+            }
+        });
+        
+        document.getElementById('searchInPreviewNext').addEventListener('click', function() {
+            navigateSearch(1);
+        });
+        
+        document.getElementById('searchInPreviewPrev').addEventListener('click', function() {
+            navigateSearch(-1);
+        });
+        
+        function searchInPreview() {
+            const searchTerm = document.getElementById('searchInPreview').value.trim();
+            if (!searchTerm) return;
+            
+            const iframe = document.querySelector('.filing-preview-iframe');
+            if (!iframe) return;
+            
+            try {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                
+                // Reset previous search
+                resetPreviousSearch(iframeDoc);
+                
+                // Create a text node containing the search term
+                const searchTextNode = document.createTextNode(searchTerm);
+                
+                // Find all text nodes in the document
+                const textNodes = [];
+                const walker = document.createTreeWalker(
+                    iframeDoc.body,
+                    NodeFilter.SHOW_TEXT,
+                    { acceptNode: node => node.nodeValue.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT },
+                    false
+                );
+                
+                while (walker.nextNode()) {
+                    textNodes.push(walker.currentNode);
+                }
+                
+                // Search for matches in text nodes
+                currentSearchMatches = [];
+                const searchRegex = new RegExp(searchTerm, 'gi');
+                
+                textNodes.forEach(textNode => {
+                    const nodeText = textNode.nodeValue;
+                    let match;
+                    
+                    while ((match = searchRegex.exec(nodeText)) !== null) {
+                        const range = iframeDoc.createRange();
+                        range.setStart(textNode, match.index);
+                        range.setEnd(textNode, match.index + searchTerm.length);
+                        
+                        currentSearchMatches.push({
+                            range: range,
+                            node: textNode
+                        });
+                    }
+                });
+                
+                // Update search results
+                const resultsSpan = document.getElementById('searchInPreviewResults');
+                if (currentSearchMatches.length === 0) {
+                    resultsSpan.textContent = `No matches found for "${searchTerm}"`;
+                    document.getElementById('searchInPreviewNext').style.display = 'none';
+                    document.getElementById('searchInPreviewPrev').style.display = 'none';
+                    return;
+                }
+                
+                resultsSpan.textContent = `Found ${currentSearchMatches.length} matches`;
+                document.getElementById('searchInPreviewNext').style.display = 'inline-block';
+                document.getElementById('searchInPreviewPrev').style.display = 'inline-block';
+                
+                // Navigate to the first match
+                currentSearchIndex = 0;
+                highlightCurrentMatch();
+                
+            } catch (error) {
+                console.error('Error searching in preview:', error);
+                document.getElementById('searchInPreviewResults').textContent = `Error: ${error.message}`;
+            }
+        }
+        
+        function navigateSearch(direction) {
+            if (currentSearchMatches.length === 0) return;
+            
+            // Update current index
+            currentSearchIndex = (currentSearchIndex + direction + currentSearchMatches.length) % currentSearchMatches.length;
+            
+            // Highlight the current match
+            highlightCurrentMatch();
+        }
+        
+        function highlightCurrentMatch() {
+            if (currentSearchIndex < 0 || currentSearchIndex >= currentSearchMatches.length) return;
+            
+            const match = currentSearchMatches[currentSearchIndex];
+            const iframe = document.querySelector('.filing-preview-iframe');
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            
+            // Reset previous highlights
+            resetPreviousSearch(iframeDoc);
+            
+            // Create a highlight span
+            const highlightSpan = iframeDoc.createElement('span');
+            highlightSpan.className = 'current-search-highlight';
+            highlightSpan.style.backgroundColor = 'orange';
+            highlightSpan.style.color = 'black';
+            
+            // Apply the highlight
+            try {
+                match.range.surroundContents(highlightSpan);
+                
+                // Scroll to the highlight
+                highlightSpan.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+                
+                // Update the results counter
+                document.getElementById('searchInPreviewResults').textContent = 
+                    `Match ${currentSearchIndex + 1} of ${currentSearchMatches.length}`;
+            } catch (e) {
+                console.error('Error highlighting match:', e);
+            }
+        }
+        
+        function resetPreviousSearch(doc) {
+            // Remove any existing highlights
+            const highlights = doc.querySelectorAll('.current-search-highlight');
+            highlights.forEach(highlight => {
+                const parent = highlight.parentNode;
+                while (highlight.firstChild) {
+                    parent.insertBefore(highlight.firstChild, highlight);
+                }
+                parent.removeChild(highlight);
+            });
+        }
     </script>
 </body>
 </html> 
