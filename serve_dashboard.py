@@ -38,7 +38,34 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         try:
             # Extract the SEC URL from the path
             sec_url_path = self.path[len('/sec-proxy/'):]
-            sec_url = urllib.parse.unquote(sec_url_path)
+            
+            # Check if this is a relative URL (doesn't start with http)
+            if not sec_url_path.startswith('http'):
+                # This is a relative URL, we need to resolve it against the base URL
+                # First, check if we have a referer header
+                referer = self.headers.get('Referer', '')
+                if referer and '/sec-proxy/' in referer:
+                    # Extract the base URL from the referer
+                    referer_parts = referer.split('/sec-proxy/')
+                    if len(referer_parts) > 1:
+                        base_url_encoded = referer_parts[1]
+                        base_url = urllib.parse.unquote(base_url_encoded)
+                        
+                        # Extract the directory part of the base URL
+                        base_dir = '/'.join(base_url.split('/')[:-1]) + '/'
+                        
+                        # Resolve the relative URL against the base directory
+                        sec_url = base_dir + sec_url_path
+                        print(f"Resolved relative URL: {sec_url_path} -> {sec_url}")
+                    else:
+                        self.send_error(500, f"SEC Proxy Error: unable to resolve relative URL from referer")
+                        return
+                else:
+                    self.send_error(500, f"SEC Proxy Error: unknown url type: '{sec_url_path}'")
+                    return
+            else:
+                # This is an absolute URL
+                sec_url = urllib.parse.unquote(sec_url_path)
             
             print(f"Proxying request to SEC: {sec_url}")
             
@@ -63,6 +90,27 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     
                     # Read the response data
                     data = response.read()
+                    
+                    # If this is HTML content, we need to rewrite URLs to use our proxy
+                    if 'text/html' in content_type.lower():
+                        try:
+                            # Decode the HTML
+                            html_content = data.decode('utf-8')
+                            
+                            # Replace relative URLs with proxied URLs
+                            # Handle src attributes (images, scripts, etc.)
+                            html_content = html_content.replace(' src="/', ' src="/sec-proxy/https://www.sec.gov/')
+                            html_content = html_content.replace(" src='", " src='/sec-proxy/")
+                            
+                            # Handle href attributes (links, stylesheets, etc.)
+                            html_content = html_content.replace(' href="/', ' href="/sec-proxy/https://www.sec.gov/')
+                            html_content = html_content.replace(" href='", " href='/sec-proxy/")
+                            
+                            # Re-encode the HTML
+                            data = html_content.encode('utf-8')
+                        except UnicodeDecodeError:
+                            # If we can't decode the HTML, just pass it through unchanged
+                            print("Warning: Could not decode HTML content for URL rewriting")
                     
                     # Send the response to the client
                     self.send_response(200)
@@ -89,6 +137,19 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             import traceback
             traceback.print_exc()
             self.send_error(500, f"SEC Proxy Error: {str(e)}")
+    
+    def do_POST(self):
+        """Handle POST requests."""
+        # Return 501 Not Implemented for Akamai pixel requests
+        if '/akam/' in self.path:
+            self.send_response(501)
+            self.send_header('Content-Type', 'text/plain')
+            self.end_headers()
+            self.wfile.write(b"POST requests not supported")
+            return
+            
+        # Default behavior for other requests
+        return http.server.SimpleHTTPRequestHandler.do_POST(self)
 
 def open_browser():
     """Open the browser to the dashboard."""
