@@ -6,6 +6,9 @@ import logging
 # Import functions from our get_companies.py script
 from get_companies import get_ticker_cik_mappings, get_company_info, get_all_companies, get_company_10k_filings, get_company_facts
 
+# Import the stock service
+from services.stock_service import StockService
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -24,6 +27,9 @@ app.add_middleware(
     allow_methods=["*"],  # Allow all methods
     allow_headers=["*"],  # Allow all headers
 )
+
+# Initialize services
+stock_service = StockService()
 
 @app.get("/")
 def read_root():
@@ -94,5 +100,26 @@ def sync_company_data(ticker: str, force_refresh: bool = False):
         logger.error(f"Error syncing company data for {ticker}: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to synchronize data for {ticker}")
 
+@app.get("/companies/{ticker}/stock-prices")
+def get_stock_prices(ticker: str, period: str = "1y", force_refresh: bool = False):
+    """
+    Get stock price data for a specific company.
+    
+    Args:
+        ticker: The stock ticker symbol
+        period: Time period to fetch (1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, ytd, max)
+        force_refresh: Whether to force a refresh from the API
+    """
+    try:
+        result = stock_service.get_stock_data(ticker, period, force_refresh)
+        
+        if "error" in result:
+            raise HTTPException(status_code=404, detail=result["error"])
+        
+        return result
+    except Exception as e:
+        logger.error(f"Error fetching stock prices for {ticker}: {e}")
+        raise HTTPException(status_code=500, detail=f"Error fetching stock prices: {str(e)}")
+
 if __name__ == "__main__":
-    uvicorn.run("simple_api:app", host="0.0.0.0", port=8001, reload=False) 
+    uvicorn.run("simple_api:app", host="0.0.0.0", port=8002, reload=False) 

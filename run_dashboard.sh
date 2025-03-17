@@ -142,7 +142,14 @@ run_simple_api() {
     fi
     
     # Start the API server
-    python simple_api.py > simple_api_logs.txt 2>&1 &
+    if [ -d "venv" ]; then
+        echo "Using virtual environment..."
+        source venv/bin/activate
+        python simple_api.py > simple_api_logs.txt 2>&1 &
+        deactivate
+    else
+        python simple_api.py > simple_api_logs.txt 2>&1 &
+    fi
     SIMPLE_API_PID=$!
     
     # Wait for the API to start
@@ -199,7 +206,14 @@ run_complex_api() {
     fi
     
     # Start the API server
-    python main.py --component api --api-host 0.0.0.0 --api-port 8000 > complex_api_logs.txt 2>&1 &
+    if [ -d "venv" ]; then
+        echo "Using virtual environment..."
+        source venv/bin/activate
+        python main.py --component api --api-host 0.0.0.0 --api-port 8000 > complex_api_logs.txt 2>&1 &
+        deactivate
+    else
+        python main.py --component api --api-host 0.0.0.0 --api-port 8000 > complex_api_logs.txt 2>&1 &
+    fi
     COMPLEX_API_PID=$!
     
     # Wait for the API to start
@@ -257,7 +271,14 @@ run_dashboard() {
     fi
     
     # Start the dashboard server
-    python serve_dashboard.py > dashboard_logs.txt 2>&1 &
+    if [ -d "venv" ]; then
+        echo "Using virtual environment..."
+        source venv/bin/activate
+        python serve_dashboard.py > dashboard_logs.txt 2>&1 &
+        deactivate
+    else
+        python serve_dashboard.py > dashboard_logs.txt 2>&1 &
+    fi
     DASHBOARD_PID=$!
     
     # Wait for the dashboard server to start
