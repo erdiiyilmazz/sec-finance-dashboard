@@ -4,7 +4,7 @@ import uvicorn
 import logging
 
 # Import functions from our get_companies.py script
-from get_companies import get_ticker_cik_mappings, get_company_info, get_all_companies, get_company_10k_filings
+from get_companies import get_ticker_cik_mappings, get_company_info, get_all_companies, get_company_10k_filings, get_company_facts
 
 # Configure logging
 logging.basicConfig(
@@ -58,6 +58,14 @@ def read_company_10k_filings(ticker: str, limit: int = 5):
         limit_int = 5
     
     result = get_company_10k_filings(ticker, limit=limit_int)
+    if "error" in result:
+        raise HTTPException(status_code=404, detail=result["error"])
+    return result
+
+@app.get("/companies/{ticker}/facts")
+def read_company_facts(ticker: str):
+    """Get financial facts for a specific company from the SEC's Company Facts API."""
+    result = get_company_facts(ticker)
     if "error" in result:
         raise HTTPException(status_code=404, detail=result["error"])
     return result
