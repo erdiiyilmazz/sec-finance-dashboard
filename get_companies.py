@@ -7,32 +7,77 @@ from services.sec_api_service import SECAPIService
 # Load environment variables
 load_dotenv()
 
-# Get user agent from environment variables or use a default
-sec_api_name = os.getenv("SEC_API_NAME", "SEC Dashboard")
-sec_api_email = os.getenv("SEC_API_EMAIL", "")
-sec_api_phone = os.getenv("SEC_API_PHONE", "")
-user_agent = f"{sec_api_name} ({sec_api_email}, {sec_api_phone})"
+# Initialize the SEC API service - it will use environment variables for User-Agent
+sec_service = SECAPIService(cache_dir="cache")
 
-# Initialize the SEC API service
-sec_service = SECAPIService(
-    user_agent=user_agent
-)
-
-def get_ticker_cik_mappings():
-    """Fetch ticker-CIK mappings from SEC's ticker.txt file."""
+def get_ticker_cik_mappings(force_refresh=False):
+    """
+    Fetch ticker-CIK mappings from SEC.
+    
+    Args:
+        force_refresh: Whether to force a refresh from the SEC API
+        
+    Returns:
+        Dictionary mapping CIKs to company info including tickers
+    """
     try:
         # Use the service to get company tickers
-        mappings = sec_service.get_company_tickers(force_refresh=False)
+        print(f"Attempting to get company tickers with force_refresh={force_refresh}")
+        mappings = sec_service.get_company_tickers(force_refresh=force_refresh)
         
-        # Check if the mappings are nested in a 'data' field (from cache)
-        if isinstance(mappings, dict) and len(mappings) == 0:
-            # Empty mappings
-            return {}
-        
-        # Return the mappings directly
+        # If we got empty mappings, try to load directly from cache file
+        if not mappings:
+            print("Warning: Empty mappings returned from SEC API, trying to load directly from cache file")
+            
+            # Try to load directly from cache file as a fallback
+            cache_file = os.path.join("cache", "company_tickers.json")
+            print(f"Looking for cache file at {cache_file}")
+            if os.path.exists(cache_file):
+                try:
+                    print(f"Cache file exists, loading it...")
+                    with open(cache_file, 'r') as f:
+                        cache_data = json.load(f)
+                        print(f"Cache data keys: {list(cache_data.keys())}")
+                        if 'entries' in cache_data:
+                            print(f"Entries keys: {list(cache_data['entries'].keys())}")
+                            if 'company_tickers' in cache_data['entries']:
+                                print(f"company_tickers keys: {list(cache_data['entries']['company_tickers'].keys())}")
+                                return cache_data['entries']['company_tickers']['data']
+                            else:
+                                print(f"'company_tickers' not found in cache entries")
+                        else:
+                            print(f"'entries' not found in cache data")
+                except Exception as e:
+                    print(f"Error loading from cache file: {e}")
+            else:
+                print(f"Cache file does not exist at {cache_file}")
+            
         return mappings
     except Exception as e:
         print(f"Error fetching ticker-CIK mappings: {e}")
+        
+        # Try to load directly from cache file as a fallback
+        cache_file = os.path.join("cache", "company_tickers.json")
+        if os.path.exists(cache_file):
+            try:
+                print(f"Cache file exists, loading it after error...")
+                with open(cache_file, 'r') as f:
+                    cache_data = json.load(f)
+                    print(f"Cache data keys: {list(cache_data.keys())}")
+                    if 'entries' in cache_data:
+                        print(f"Entries keys: {list(cache_data['entries'].keys())}")
+                        if 'company_tickers' in cache_data['entries']:
+                            print(f"company_tickers keys: {list(cache_data['entries']['company_tickers'].keys())}")
+                            return cache_data['entries']['company_tickers']['data']
+                        else:
+                            print(f"'company_tickers' not found in cache entries")
+                    else:
+                        print(f"'entries' not found in cache data")
+            except Exception as cache_e:
+                print(f"Error loading from cache file: {cache_e}")
+        else:
+            print(f"Cache file does not exist at {cache_file}")
+        
         return {}
 
 def get_company_info(ticker):
@@ -119,24 +164,43 @@ def get_company_10k_filings(ticker, limit=5):
         # Find 10-K filings
         ten_k_indices = [i for i, form in enumerate(form_types) if form == "10-K"]
         
+        # Get current date for validation
+        from datetime import datetime
+        current_date = datetime.now().date()
+        
         # Extract 10-K filing information
         for idx in ten_k_indices[:limit]:  # Limit to the most recent 'limit' filings
             if idx < len(filing_dates) and idx < len(accession_numbers):
-                # Format the accession number for the URL
-                acc_no = accession_numbers[idx].replace('-', '')
-                
-                # Create the Edgar URL for the filing
-                edgar_url = f"https://www.sec.gov/Archives/edgar/data/{cik}/{acc_no}/{primary_documents[idx]}"
-                
-                filing = {
-                    "form": "10-K",
-                    "filingDate": filing_dates[idx],
-                    "accessionNumber": accession_numbers[idx],
-                    "primaryDocument": primary_documents[idx] if idx < len(primary_documents) else "",
-                    "fileNumber": file_numbers[idx] if idx < len(file_numbers) else "",
-                    "edgarUrl": edgar_url
-                }
-                filings.append(filing)
+                # Parse the filing date
+                try:
+                    filing_date = datetime.strptime(filing_dates[idx], "%Y-%m-%d").date()
+                    
+                    # Skip future filings
+                    if filing_date > current_date:
+                        print(f"Skipping future filing date: {filing_dates[idx]}")
+                        continue
+                        
+                    # Format the accession number for the URL
+                    acc_no = accession_numbers[idx].replace('-', '')
+                    
+                    # Create the Edgar URL for the filing
+                    edgar_url = f"https://www.sec.gov/Archives/edgar/data/{cik}/{acc_no}/{primary_documents[idx]}"
+                    
+                    filing = {
+                        "form": "10-K",
+                        "filingDate": filing_dates[idx],
+                        "accessionNumber": accession_numbers[idx],
+                        "primaryDocument": primary_documents[idx] if idx < len(primary_documents) else "",
+                        "fileNumber": file_numbers[idx] if idx < len(file_numbers) else "",
+                        "edgarUrl": edgar_url
+                    }
+                    filings.append(filing)
+                except ValueError as e:
+                    print(f"Error parsing filing date {filing_dates[idx]}: {e}")
+                    continue
+        
+        if not filings:
+            return {"error": "No valid 10-K filings found for this company"}
         
         return {
             "ticker": ticker.upper(),

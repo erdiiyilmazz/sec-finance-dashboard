@@ -81,9 +81,9 @@ show_usage() {
     echo ""
     echo "Options:"
     echo "  --help                 Show this help message"
-    echo "  --simple-api           Run only the simple API (port 8001)"
+    echo "  --simple-api           Run only the simple API (port 8002)"
     echo "  --complex-api          Run only the complex API (port 8000)"
-    echo "  --both-apis            Run both APIs (simple on 8001, complex on 8000)"
+    echo "  --both-apis            Run both APIs (simple on 8002, complex on 8000)"
     echo "  --dashboard            Run the dashboard HTTP server (port 8080)"
     echo "  --all                  Run both APIs and the dashboard (default)"
     echo "  --stop                 Stop all running servers"
@@ -107,18 +107,18 @@ stop_all_servers() {
 
 # Function to run the simple API
 run_simple_api() {
-    echo "Starting simple API server on port 8001..."
+    echo "Starting simple API server on port 8002..."
     
     # Check if the port is already in use
-    if check_port_in_use 8001; then
-        echo "Port 8001 is already in use."
+    if check_port_in_use 8002; then
+        echo "Port 8002 is already in use."
         
         # Check if it's our API server
         if pgrep -f "python simple_api.py" >/dev/null; then
             echo "Simple API server is already running."
             
             # Check if it's responding
-            if curl -s http://localhost:8001/ >/dev/null 2>&1; then
+            if curl -s http://localhost:8002/ >/dev/null 2>&1; then
                 echo "Simple API server is responding correctly."
                 SIMPLE_API_PID=$(pgrep -f "python simple_api.py")
                 echo "Using existing Simple API server (PID: $SIMPLE_API_PID)"
@@ -129,22 +129,16 @@ run_simple_api() {
                 sleep 1
             fi
         else
-            echo "Another process is using port 8001. Stopping it..."
-            if command -v lsof >/dev/null 2>&1; then
-                lsof -i:8001 -t | xargs kill 2>/dev/null || true
-            else
-                echo "Warning: Cannot automatically stop the process using port 8001."
-                echo "Please stop it manually and try again."
-                return 1
-            fi
+            echo "Another process is using port 8002. Stopping it..."
+            lsof -i:8002 -t | xargs kill 2>/dev/null || true
             sleep 1
         fi
     fi
     
     # Start the API server
-    if [ -d "venv" ]; then
+    if [ -d "venv_py39" ]; then
         echo "Using virtual environment..."
-        source venv/bin/activate
+        source venv_py39/bin/activate
         python simple_api.py > simple_api_logs.txt 2>&1 &
         deactivate
     else
@@ -156,7 +150,7 @@ run_simple_api() {
     echo "Waiting for simple API to start..."
     for i in {1..10}; do
         sleep 1
-        if curl -s http://localhost:8001/ >/dev/null 2>&1; then
+        if curl -s http://localhost:8002/ >/dev/null 2>&1; then
             echo "Simple API server started successfully (PID: $SIMPLE_API_PID)"
             return 0
         fi
@@ -206,9 +200,9 @@ run_complex_api() {
     fi
     
     # Start the API server
-    if [ -d "venv" ]; then
+    if [ -d "venv_py39" ]; then
         echo "Using virtual environment..."
-        source venv/bin/activate
+        source venv_py39/bin/activate
         python main.py --component api --api-host 0.0.0.0 --api-port 8000 > complex_api_logs.txt 2>&1 &
         deactivate
     else

@@ -2,6 +2,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import logging
+import sys
+import os
 
 # Import functions from our get_companies.py script
 from get_companies import get_ticker_cik_mappings, get_company_info, get_all_companies, get_company_10k_filings, get_company_facts
@@ -15,6 +17,10 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
+
+# Get server configuration from environment variables with defaults
+HOST = os.environ.get("API_HOST", "0.0.0.0")
+PORT = int(os.environ.get("API_PORT", "8002"))
 
 # Create FastAPI app
 app = FastAPI(title="Simple SEC API")
@@ -35,6 +41,11 @@ stock_service = StockService()
 def read_root():
     """Root endpoint."""
     return {"message": "Simple SEC API is running"}
+
+@app.get("/health")
+def health_check():
+    """Health check endpoint."""
+    return {"status": "healthy"}
 
 @app.get("/companies/")
 def read_companies(limit: int = 20):
@@ -80,9 +91,16 @@ def read_company_facts(ticker: str):
 def sync_cik_mappings(force_refresh: bool = False):
     """Sync CIK-ticker mappings."""
     try:
-        mappings = get_ticker_cik_mappings()
+        # Always try to get mappings, with force_refresh passed through
+        mappings = get_ticker_cik_mappings(force_refresh=force_refresh)
+        
         if not mappings:
+            # If we got no mappings even after trying cached data,
+            # this is a real error
+            logger.warning("No CIK mappings available - API may be rate limited and no cache exists")
             raise HTTPException(status_code=500, detail="Failed to synchronize CIK-ticker mappings")
+        
+        logger.info(f"Successfully synchronized {len(mappings)} CIK-ticker mappings")
         return {"message": f"Successfully synchronized {len(mappings)} CIK-ticker mappings"}
     except Exception as e:
         logger.error(f"Error syncing CIK-ticker mappings: {str(e)}")
@@ -122,4 +140,15 @@ def get_stock_prices(ticker: str, period: str = "1y", force_refresh: bool = Fals
         raise HTTPException(status_code=500, detail=f"Error fetching stock prices: {str(e)}")
 
 if __name__ == "__main__":
-    uvicorn.run("simple_api:app", host="0.0.0.0", port=8002, reload=False) 
+    try:
+        # Run the server with environment-based configuration
+        uvicorn.run(
+            app,
+            host=HOST,
+            port=PORT,
+            reload=False,
+            log_level="info"
+        )
+    except Exception as e:
+        logger.error(f"Failed to start server: {str(e)}")
+        sys.exit(1) 
