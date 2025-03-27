@@ -1,0 +1,46 @@
+version: '3.8'
+
+# SEC Filings Dashboard Docker Compose Configuration
+# 
+# This file defines the configuration for running the SEC Filings Dashboard
+# through Docker Compose. It sets up the required ports, volumes, and environment
+# variables needed for the application to function properly.
+#
+# Usage:
+#   docker-compose up -d
+#
+# Access:
+#   Dashboard: http://localhost:8080/simple_dashboard.html
+#   API: http://localhost:8002/docs
+
+services:
+  finance-app:
+    image: erdiyilmazz/finance-dashboard:latest
+    container_name: finance-dashboard
+    ports:
+      - "8002:8002"  # API port
+      - "8080:8080"  # Dashboard port
+    volumes:
+      - ./cache:/app/cache  # Persist cache data
+    environment:
+      - INTERNAL_API_URL=http://localhost:8002  # For API's internal use within the container
+      - EXTERNAL_API_URL=http://localhost:8002  # For browser access - this is the host's mapped port
+      - PORT=8080
+      - SEC_API_COMPANY_NAME=YourCompany  # Update with your company name
+      - SEC_API_CONTACT_EMAIL=your@email.com  # Update with your email
+      - SEC_API_PHONE_NUMBER=555-555-5555  # Update with your phone number
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M 

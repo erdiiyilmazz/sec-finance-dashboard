@@ -8,6 +8,8 @@ import signal
 import sys
 import urllib.request
 import urllib.parse
+import re
+import datetime
 
 # Configuration
 PORT = 8080
@@ -39,35 +41,79 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             # Extract the SEC URL from the path
             sec_url_path = self.path[len('/sec-proxy/'):]
             
-            # Check if this is a relative URL (doesn't start with http)
-            if not sec_url_path.startswith('http'):
-                # This is a relative URL, we need to resolve it against the base URL
-                # First, check if we have a referer header
-                referer = self.headers.get('Referer', '')
-                if referer and '/sec-proxy/' in referer:
-                    # Extract the base URL from the referer
-                    referer_parts = referer.split('/sec-proxy/')
-                    if len(referer_parts) > 1:
-                        base_url_encoded = referer_parts[1]
-                        base_url = urllib.parse.unquote(base_url_encoded)
-                        
-                        # Extract the directory part of the base URL
-                        base_dir = '/'.join(base_url.split('/')[:-1]) + '/'
-                        
-                        # Resolve the relative URL against the base directory
-                        sec_url = base_dir + sec_url_path
-                        print(f"Resolved relative URL: {sec_url_path} -> {sec_url}")
-                    else:
-                        self.send_error(500, f"SEC Proxy Error: unable to resolve relative URL from referer")
-                        return
-                else:
-                    self.send_error(500, f"SEC Proxy Error: unknown url type: '{sec_url_path}'")
-                    return
-            else:
-                # This is an absolute URL
-                sec_url = urllib.parse.unquote(sec_url_path)
+            # Decode the URL first
+            sec_url = urllib.parse.unquote(sec_url_path)
             
             print(f"Proxying request to SEC: {sec_url}")
+            
+            # Check for future filing dates in the URL
+            # Typical format: /Archives/edgar/data/0000320193/000032019324000123/aapl-20240928.htm
+            
+            # Extract filing date if present in URL
+            date_pattern = r'/[a-zA-Z]+-(\d{8})\.htm'
+            date_match = re.search(date_pattern, sec_url)
+            
+            if date_match:
+                filing_date_str = date_match.group(1)
+                try:
+                    # Format is YYYYMMDD
+                    filing_year = int(filing_date_str[0:4])
+                    filing_month = int(filing_date_str[4:6])
+                    filing_day = int(filing_date_str[6:8])
+                    
+                    filing_date = datetime.date(filing_year, filing_month, filing_day)
+                    current_date = datetime.date.today()
+                    
+                    print(f"Comparing dates - Filing date: {filing_date} | Current date: {current_date}")
+                    
+                    # Don't use > operator for dates as it might lead to incorrect comparisons
+                    # Instead, check each component explicitly to ensure correct date comparison
+                    is_future_date = False
+                    
+                    if filing_year > current_date.year:
+                        is_future_date = True
+                    elif filing_year == current_date.year:
+                        if filing_month > current_date.month:
+                            is_future_date = True
+                        elif filing_month == current_date.month:
+                            if filing_day > current_date.day:
+                                is_future_date = True
+                    
+                    if is_future_date:
+                        print(f"Request for future filing date detected: {filing_date_str}")
+                        future_date_html = f"""
+                        <html>
+                        <head>
+                            <title>Future Filing Date</title>
+                            <style>
+                                body {{ font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }}
+                                .container {{ max-width: 800px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }}
+                                h1 {{ color: #333; }}
+                                .error {{ color: #d9534f; }}
+                                .info {{ color: #5bc0de; }}
+                            </style>
+                        </head>
+                        <body>
+                            <div class="container">
+                                <h1>Future Filing Date</h1>
+                                <p class="error">Error: The requested SEC filing has a future date and is not yet available.</p>
+                                <p>The filing date in the URL ({filing_date.strftime('%Y-%m-%d')}) is in the future. SEC filings are not available until their filing date has passed.</p>
+                                <p class="info">Current date: {current_date.strftime('%Y-%m-%d')}</p>
+                                <p class="info">Requested URL: {sec_url}</p>
+                                <p>Please try a different filing with a past date.</p>
+                            </div>
+                        </body>
+                        </html>
+                        """
+                        self.send_response(404)
+                        self.send_header('Content-Type', 'text/html')
+                        self.send_header('Content-Length', str(len(future_date_html.encode('utf-8'))))
+                        self.end_headers()
+                        self.wfile.write(future_date_html.encode('utf-8'))
+                        return
+                except (ValueError, IndexError) as e:
+                    print(f"Error parsing date from URL: {e}")
+                    # Continue with request if date parsing fails
             
             # Set up headers to mimic a browser request
             headers = {
@@ -127,7 +173,49 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     
             except urllib.error.HTTPError as e:
                 print(f"HTTP Error proxying SEC request: {e.code} - {e.reason} for URL: {sec_url}")
-                self.send_error(e.code, f"SEC Proxy Error: {e.reason}")
+                if e.code == 404:
+                    # Create a user-friendly HTML response with a link to view directly on SEC website
+                    error_html = f"""
+                    <html>
+                    <head>
+                        <title>SEC Filing Not Found</title>
+                        <style>
+                            body {{ font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }}
+                            .container {{ max-width: 800px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }}
+                            h1 {{ color: #333; }}
+                            .error {{ color: #d9534f; }}
+                            .info {{ color: #5bc0de; }}
+                            .action {{ margin-top: 20px; }}
+                            a.button {{ background-color: #0275d8; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; display: inline-block; }}
+                            a.button:hover {{ background-color: #025aa5; }}
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <h1>SEC Filing Not Available</h1>
+                            <p class="error">Error: The requested SEC filing could not be found (HTTP 404)</p>
+                            <p>The SEC server returned a 404 (Not Found) error for this filing. This could be because:</p>
+                            <ul>
+                                <li>The filing has been moved or removed from the SEC website</li>
+                                <li>The filing is not yet publicly available (future filing date)</li>
+                                <li>The URL format has changed on the SEC website</li>
+                            </ul>
+                            <p class="info">Requested URL: {sec_url}</p>
+                            <div class="action">
+                                <p>You can try to view this filing directly on the SEC website:</p>
+                                <a href="{sec_url}" target="_blank" class="button">View on SEC.gov</a>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                    """
+                    self.send_response(404)
+                    self.send_header('Content-Type', 'text/html')
+                    self.send_header('Content-Length', str(len(error_html.encode('utf-8'))))
+                    self.end_headers()
+                    self.wfile.write(error_html.encode('utf-8'))
+                else:
+                    self.send_error(e.code, f"SEC Proxy Error: {e.reason}")
             except urllib.error.URLError as e:
                 print(f"URL Error proxying SEC request: {e.reason} for URL: {sec_url}")
                 self.send_error(500, f"SEC Proxy Error: {e.reason}")

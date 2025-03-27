@@ -158,6 +158,7 @@ async def get_company_10k_filings(
         
         # Fetch submissions data from SEC
         import requests
+        from datetime import datetime
         
         # Get user agent components from environment variables
         sec_api_name = os.environ.get("SEC_API_NAME", "SEC Dashboard")
@@ -193,24 +194,60 @@ async def get_company_10k_filings(
         # Find 10-K filings
         ten_k_indices = [i for i, form in enumerate(form_types) if form == "10-K"]
         
+        # Get current date for validation
+        current_date = datetime.now().date()
+        
         # Extract 10-K filing information
         for idx in ten_k_indices[:limit]:  # Limit to the most recent 'limit' filings
             if idx < len(filing_dates) and idx < len(accession_numbers):
-                # Format the accession number for the URL
-                acc_no = accession_numbers[idx].replace('-', '')
-                
-                # Create the Edgar URL for the filing
-                edgar_url = f"https://www.sec.gov/Archives/edgar/data/{cik_padded}/{acc_no}/{primary_documents[idx]}"
-                
-                filing = {
-                    "form": "10-K",
-                    "filingDate": filing_dates[idx],
-                    "accessionNumber": accession_numbers[idx],
-                    "primaryDocument": primary_documents[idx] if idx < len(primary_documents) else "",
-                    "fileNumber": file_numbers[idx] if idx < len(file_numbers) else "",
-                    "edgarUrl": edgar_url
-                }
-                filings.append(filing)
+                try:
+                    # Parse the filing date
+                    filing_date = datetime.strptime(filing_dates[idx], "%Y-%m-%d").date()
+                    
+                    # Skip future filings
+                    if filing_date > current_date:
+                        print(f"Skipping future filing date: {filing_dates[idx]}")
+                        continue
+                    
+                    # Format the accession number for the URL
+                    acc_no = accession_numbers[idx].replace('-', '')
+                    
+                    # Primary document
+                    primary_doc = primary_documents[idx] if idx < len(primary_documents) else ""
+                    
+                    # Create the SEC URLs - we'll prioritize the interactive viewer URL
+                    # This is the most reliable way to view SEC filings as it uses their modern iXBRL viewer
+                    sec_viewer_url = f"https://www.sec.gov/ix?doc=/Archives/edgar/data/{cik_padded}/{acc_no}/{primary_doc}"
+                    
+                    # Legacy URL - keep as a fallback but may not work for all filings
+                    legacy_url = f"https://www.sec.gov/Archives/edgar/data/{cik_padded}/{acc_no}/{primary_doc}"
+                    
+                    # Modern index URL that usually works even when specific document links fail
+                    index_url = f"https://www.sec.gov/Archives/edgar/data/{cik_padded}/{acc_no}/index.htm"
+                    
+                    filing = {
+                        "form": "10-K",
+                        "filingDate": filing_dates[idx],
+                        "accessionNumber": accession_numbers[idx],
+                        "primaryDocument": primary_doc,
+                        "fileNumber": file_numbers[idx] if idx < len(file_numbers) else "",
+                        "edgarUrl": sec_viewer_url,  # Use the interactive viewer as the primary URL
+                        "legacyUrl": legacy_url,
+                        "indexUrl": index_url
+                    }
+                    filings.append(filing)
+                except ValueError as e:
+                    print(f"Error parsing filing date {filing_dates[idx]}: {e}")
+                    continue
+        
+        if not filings:
+            return {
+                "ticker": ticker,
+                "name": company.name,
+                "cik": cik,
+                "filings": [],
+                "message": "No valid 10-K filings found. This could be because all available filings are dated in the future."
+            }
         
         return {
             "ticker": ticker,

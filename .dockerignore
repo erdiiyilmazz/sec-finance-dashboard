@@ -1,0 +1,48 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+venv_py39/
+ENV/
+env/
+.env
+.venv
+*.egg-info/
+dist/
+build/
+
+# Logs
+*.log
+api_logs.txt
+complex_api_logs.txt
+dashboard_logs.txt
+debug_logs.txt
+simple_api_logs.txt
+
+# Local dev files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Cache and data
+cache/
+*.db
+*.sqlite3
+
+# Documentation
+README.md
+LICENSE 

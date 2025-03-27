@@ -2,6 +2,95 @@
 
 A comprehensive dashboard for viewing and analyzing SEC filings data.
 
+## Features
+
+This project provides a dashboard for viewing and analyzing SEC filings data, with the following capabilities:
+
+* Fetching company information from the SEC EDGAR database
+* Viewing company details and filings
+* Analyzing financial metrics from 10-K and 10-Q filings
+* Viewing stock price data
+* Viewing 10-K filings for companies
+
+## Running with Docker
+
+### Quick Start
+
+The quickest way to get started is to pull and run the Docker image directly from Docker Hub:
+
+```bash
+docker run -p 8002:8002 -p 8080:8080 erdiyilmazz/finance-dashboard:latest
+```
+
+Then open your browser and navigate to:
+* http://localhost:8080/simple_dashboard.html
+
+### Using Docker Compose
+
+For a more production-like setup, you can use Docker Compose:
+
+1. Create a `docker-compose.yml` file:
+
+```yaml
+version: '3.8'
+
+services:
+  finance-app:
+    image: erdiyilmazz/finance-dashboard:latest
+    container_name: finance-dashboard
+    ports:
+      - "8002:8002"  # API port
+      - "8080:8080"  # Dashboard port
+    volumes:
+      - ./cache:/app/cache
+    environment:
+      - INTERNAL_API_URL=http://localhost:8002
+      - EXTERNAL_API_URL=http://localhost:8002
+      - PORT=8080
+    restart: unless-stopped
+```
+
+2. Run the application:
+
+```bash
+docker-compose up -d
+```
+
+3. Access the dashboard at:
+   * http://localhost:8080/simple_dashboard.html
+
+## How to Use
+
+1. First, sync the CIK-Ticker mappings using the "Sync CIK-Ticker Mappings" button
+2. Enter a ticker symbol (e.g., AAPL) in the Data Sync section
+3. Click "Sync Data" to fetch company information
+4. Use the "Get Companies" button to view a list of synced companies
+5. Click on "View Details" for a company to see its information
+6. View 10-K filings by clicking on a company and selecting the "View 10-K Filings" button
+7. View stock price data by entering a ticker and clicking "Get Stock Data"
+
+## Features
+
+- [x] Dark mode support
+- [x] Financial data visualization
+- [x] SEC filings display
+- [x] Direct links to SEC filings
+- [x] 10-K filings access
+- [x] Responsive design
+
+## Requirements
+
+The application uses the SEC EDGAR database, so an internet connection is required for initial data fetching. Once data is cached, some features will work offline.
+
+## License
+
+MIT
+
+## Acknowledgements
+
+* SEC EDGAR database for providing the data
+* Chart.js for data visualization
+
 ## Project Overview
 
 This project provides a dashboard for viewing and analyzing SEC filings data, with the following capabilities:
@@ -222,12 +311,65 @@ This script makes it much easier to start, stop, and manage the application, esp
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## License
+## Running locally
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+1. Install the required packages:
+   ```
+   pip install -r requirements.txt
+   ```
 
-## Acknowledgements
+2. Start the application:
+   ```
+   ./run_dashboard.sh
+   ```
 
-* SEC EDGAR database for providing the data
-* FastAPI for the API framework
-* Streamlit for the dashboard framework 
+3. Open the dashboard in your browser:
+   ```
+   http://localhost:8080/simple_dashboard.html
+   ```
+
+## Docker
+
+### Running with Docker Compose
+
+1. Start the application:
+   ```
+   docker-compose up -d
+   ```
+
+2. Open the dashboard in your browser:
+   ```
+   http://localhost:8080/simple_dashboard.html
+   ```
+
+3. Stop the application:
+   ```
+   docker-compose down
+   ```
+
+### Building and pushing to Docker Hub
+
+1. Build and push the image:
+   ```
+   ./docker-publish.sh <your-dockerhub-username> [version]
+   ```
+   If version is not specified, it will use 'latest'.
+
+2. Run the container:
+   ```
+   docker run -p 8002:8002 -p 8080:8080 <your-dockerhub-username>/finance-dashboard:latest
+   ```
+
+## Features
+
+- View company details
+- Synchronize SEC data
+- View financial facts and metrics
+- View 10-K filings
+- View stock prices
+
+## Development
+
+The application consists of two parts:
+1. A FastAPI server (`simple_api.py`)
+2. A frontend dashboard (`simple_dashboard.html`) 

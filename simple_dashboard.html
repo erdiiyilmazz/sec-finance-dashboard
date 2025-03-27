@@ -6,123 +6,101 @@
     <title>Simple SEC Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <style>
+        /* Global styles */
         :root {
-            --bg-color: #ffffff;
+            --background-color: #f5f5f5;
+            --card-background: #ffffff;
             --text-color: #333333;
-            --card-bg: #ffffff;
             --card-border: #ddd;
-            --card-shadow: rgba(0,0,0,0.1);
-            --input-border: #ddd;
-            --result-bg: #f5f5f5;
-            --button-bg: #4CAF50;
-            --button-color: white;
-            --button-hover: #45a049;
-            --success-color: #4CAF50;
-            --error-color: #f44336;
-            --warning-color: #ff9800;
-            --muted-color: #666;
+            --card-shadow: rgba(0, 0, 0, 0.1);
+            --primary-button: #3498db;
+            --primary-button-hover: #2980b9;
+            --secondary-button: #ccc;
+            --secondary-button-hover: #999;
+            --table-header: #f2f2f2;
+            --table-row-even: #f9f9f9;
+            --table-row-hover: #f5f5f5;
+            --table-border: #ddd;
+            --warning-bg: #fff3cd;
+            --warning-text: #856404;
+            --error-bg: #f8d7da;
+            --error-text: #721c24;
+            --success-bg: #d4edda;
+            --success-text: #155724;
+            --chart-grid: rgba(0, 0, 0, 0.1);
         }
         
         [data-theme="dark"] {
-            --bg-color: #121212;
-            --text-color: #e0e0e0;
-            --card-bg: #1e1e1e;
-            --card-border: #333;
-            --card-shadow: rgba(0,0,0,0.3);
-            --input-border: #444;
-            --result-bg: #2a2a2a;
-            --button-bg: #388e3c;
-            --button-color: white;
-            --button-hover: #2e7d32;
-            --success-color: #4CAF50;
-            --error-color: #f44336;
-            --warning-color: #ff9800;
-            --muted-color: #aaa;
+            --background-color: #202124;
+            --card-background: #2d2d30;
+            --text-color: #e8eaed;
+            --card-border: #444;
+            --card-shadow: rgba(0, 0, 0, 0.3);
+            --primary-button: #4285f4;
+            --primary-button-hover: #2b7de9;
+            --secondary-button: #5f6368;
+            --secondary-button-hover: #80868b;
+            --table-header: #3c4043;
+            --table-row-even: #35363a;
+            --table-row-hover: #404144;
+            --table-border: #555;
+            --warning-bg: #332b00;
+            --warning-text: #ffda6a;
+            --error-bg: #350d14;
+            --error-text: #f8c9c9;
+            --success-bg: #0d2c14;
+            --success-text: #8aeaa0;
+            --chart-grid: rgba(255, 255, 255, 0.1);
         }
         
         body {
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+            background-color: var(--background-color);
+        }
+        
+        /* Container styles */
+        .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: background-color 0.3s ease, color 0.3s ease;
         }
-        .container {
+        
+        /* Header styles */
+        .header {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            align-items: flex-start;
         }
-        .card {
-            border: 1px solid var(--card-border);
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 4px var(--card-shadow);
-            background-color: var(--card-bg);
-            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        
+        .header h1 {
+            margin-top: 0;
+            margin-bottom: 20px;
         }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input, button, select {
-            padding: 8px 12px;
-            border: 1px solid var(--input-border);
-            border-radius: 4px;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-        }
-        button {
-            background-color: var(--button-bg);
-            color: var(--button-color);
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: var(--button-hover);
-        }
-        .result {
-            margin-top: 20px;
-            white-space: pre-wrap;
-            background-color: var(--result-bg);
-            padding: 10px;
-            border-radius: 4px;
-            max-height: 300px;
-            overflow-y: auto;
-            transition: background-color 0.3s ease;
-        }
-        .error {
-            color: var(--error-color);
-        }
-        .success {
-            color: var(--success-color);
-        }
-        .warning {
-            color: var(--warning-color);
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        
         .controls {
             display: flex;
+            justify-content: space-between;
+            width: 100%;
             align-items: center;
-            gap: 20px;
         }
+        
         .auto-refresh {
             display: flex;
-            align-items: center;
+            flex-direction: column;
             gap: 10px;
         }
+        
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+        }
+        
         .status-indicator {
             display: inline-block;
             width: 10px;
@@ -130,119 +108,144 @@
             border-radius: 50%;
             margin-right: 5px;
         }
+        
         .status-online {
-            background-color: var(--success-color);
+            background-color: #2ecc71;
         }
+        
         .status-offline {
-            background-color: var(--error-color);
+            background-color: #e74c3c;
         }
+        
         .last-updated {
-            font-size: 0.8em;
-            color: var(--muted-color);
-            margin-top: 5px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px 10px 20px;
         }
         
-        /* Dark mode toggle */
-        .theme-switch-wrapper {
+        /* Tab navigation */
+        .tab-navigation {
             display: flex;
-            align-items: center;
-            gap: 8px;
+            border-bottom: 2px solid var(--card-border);
+            margin-bottom: 20px;
         }
-        .theme-switch {
-            display: inline-block;
-            height: 24px;
-            position: relative;
-            width: 48px;
-        }
-        .theme-switch input {
-            display: none;
-        }
-        .slider {
-            background-color: #ccc;
-            bottom: 0;
+        
+        .tab-link {
+            padding: 10px 20px;
             cursor: pointer;
-            left: 0;
-            position: absolute;
-            right: 0;
-            top: 0;
-            transition: .4s;
-            border-radius: 24px;
-        }
-        .slider:before {
-            background-color: white;
-            bottom: 4px;
-            content: "";
-            height: 16px;
-            left: 4px;
-            position: absolute;
-            transition: .4s;
-            width: 16px;
-            border-radius: 50%;
-        }
-        input:checked + .slider {
-            background-color: #2196F3;
-        }
-        input:checked + .slider:before {
-            transform: translateX(24px);
-        }
-        .theme-icon {
-            font-size: 16px;
+            border: 1px solid transparent;
+            border-bottom: none;
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
         }
         
-        .filing-preview-iframe {
+        .tab-link:hover {
+            background-color: var(--table-row-hover);
+        }
+        
+        .tab-link.active {
+            background-color: var(--card-background);
+            border-color: var(--card-border);
+            border-bottom: 2px solid var(--card-background);
+            margin-bottom: -2px;
+        }
+        
+        /* Tab content */
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background-color: var(--card-background);
+            border-radius: 0 0 5px 5px;
+            box-shadow: 0 2px 4px var(--card-shadow);
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Form styles */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input[type="text"], select {
             width: 100%;
-            height: 100%;
-            border: none;
-        }
-        
-        .search-highlight {
-            background-color: yellow;
-            color: black;
-            padding: 2px;
-            border-radius: 2px;
-        }
-        
-        .search-result {
-            margin: 10px 0;
-            padding: 10px;
+            padding: 8px;
             border: 1px solid var(--card-border);
             border-radius: 4px;
-            background-color: var(--result-bg);
+            box-sizing: border-box;
+            background-color: var(--card-background);
+            color: var(--text-color);
         }
         
-        .search-result-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .search-result-context {
-            margin-left: 10px;
-            font-family: monospace;
-            white-space: pre-wrap;
-            overflow-x: auto;
-        }
-        
-        .view-context-btn {
-            margin-top: 5px;
-            background-color: var(--button-bg);
+        button, .action-button {
+            background-color: var(--primary-button);
             color: white;
             border: none;
-            padding: 5px 10px;
+            padding: 8px 15px;
             border-radius: 4px;
             cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 5px;
+            font-size: 14px;
         }
         
-        .view-context-btn:hover {
-            background-color: var(--button-hover);
+        button:hover, .action-button:hover {
+            background-color: var(--primary-button-hover);
         }
         
+        /* Data table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .data-table th, .data-table td {
+            border: 1px solid var(--table-border);
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .data-table th {
+            background-color: var(--table-header);
+            font-weight: bold;
+        }
+        
+        .data-table tr:nth-child(even) {
+            background-color: var(--table-row-even);
+        }
+        
+        .data-table tr:hover {
+            background-color: var(--table-row-hover);
+        }
+        
+        /* Status messages */
+        .error {
+            color: var(--error-text);
+            font-weight: bold;
+        }
+        
+        .success {
+            color: var(--success-text);
+            font-weight: bold;
+        }
+        
+        /* Loading spinner */
         .loading-spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            width: 36px;
-            height: 36px;
+            border: 4px solid var(--card-border);
+            border-top: 4px solid var(--primary-button);
             border-radius: 50%;
-            border-left-color: var(--button-bg);
-            animation: spin 1s linear infinite;
+            width: 30px;
+            height: 30px;
+            animation: spin 2s linear infinite;
             margin: 20px auto;
         }
         
@@ -251,9 +254,245 @@
             100% { transform: rotate(360deg); }
         }
         
-        [data-theme="dark"] .search-highlight {
-            background-color: #ffeb3b;
-            color: black;
+        /* Filing preview */
+        #filingPreview {
+            margin-top: 20px;
+            min-height: 100px;
+            background-color: var(--card-background);
+            border: 1px solid var(--card-border);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        /* Chart styles */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 20px;
+        }
+        
+        /* Error message */
+        .error-container {
+            padding: 20px;
+            border: 1px solid var(--error-text);
+            border-radius: 4px;
+            background-color: var(--error-bg);
+            margin-top: 20px;
+        }
+        
+        .error-container h3 {
+            margin-top: 0;
+            color: var(--error-text);
+        }
+        
+        /* Close button */
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--secondary-button);
+            color: #fff;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .close-button:hover {
+            background-color: var(--secondary-button-hover);
+        }
+
+        /* Preview container styles */
+        .preview-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            border: 1px solid var(--card-border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .preview-header {
+            background-color: var(--table-header);
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--card-border);
+            position: relative;
+        }
+        
+        .preview-header h3 {
+            margin: 0;
+            font-size: 18px;
+            color: var(--text-color);
+        }
+        
+        .preview-links {
+            margin-top: 5px;
+            font-size: 14px;
+        }
+        
+        .preview-links a {
+            color: var(--primary-button);
+            text-decoration: none;
+            margin: 0 5px;
+        }
+        
+        .preview-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .preview-header .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        
+        /* Add these styles to your existing CSS */
+        .future-filing {
+            background-color: var(--warning-bg);
+        }
+        
+        .warning-badge {
+            background-color: #ffc107;
+            color: #000;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-left: 8px;
+        }
+        
+        .warning {
+            color: var(--warning-text);
+            background-color: var(--warning-bg);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        
+        .error-container {
+            background-color: var(--error-bg);
+            border: 1px solid var(--error-text);
+            border-radius: 4px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .error-container h3 {
+            color: var(--error-text);
+            margin-top: 0;
+        }
+        
+        .button-container {
+            margin: 15px 0;
+        }
+        
+        .button-container .btn {
+            margin-right: 10px;
+        }
+        
+        /* Theme switch styling */
+        .theme-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            margin: 0 10px;
+        }
+        
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary-button);
+        }
+        
+        input:focus + .slider {
+            box-shadow: 0 0 1px var(--primary-button);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .theme-icon {
+            font-size: 18px;
+        }
+        
+        /* Card styles */
+        .card {
+            background-color: var(--card-background);
+            border-radius: 5px;
+            box-shadow: 0 2px 4px var(--card-shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card h2 {
+            margin-top: 0;
+            color: var(--text-color);
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        
+        /* Direct SEC links styling */
+        .sec-links-container {
+            display: flex;
+            flex-direction: column;
+            background-color: var(--card-background);
+            border: 1px solid var(--card-border);
+            border-radius: 5px;
+            padding: 20px;
+            margin-top: 10px;
+        }
+        
+        .sec-links-header {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+        
+        .sec-links-description {
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+        
+        .sec-links-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
         }
     </style>
 </head>
@@ -398,47 +637,48 @@
                     <option value="20">20 filings</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label for="keywordSearch">Search within filings:</label>
-                <input type="text" id="keywordSearch" placeholder="e.g., risk factors, revenue">
-            </div>
             <button id="getFilings">Get 10-K Filings</button>
             <div id="filingsList" class="result"></div>
-            <div id="filingPreview" style="display: none; margin-top: 20px;">
-                <h3>Document Preview</h3>
-                <div class="form-group">
-                    <button id="closePreview" style="background-color: #f44336;">Close Preview</button>
-                    <div class="common-sections" style="margin-top: 10px;">
-                        <label>Jump to section:</label>
-                        <select id="jumpToSection" style="margin-left: 10px;">
-                            <option value="">Select a section...</option>
-                            <option value="Risk Factors">Risk Factors</option>
-                            <option value="Management's Discussion">Management's Discussion & Analysis</option>
-                            <option value="Financial Statements">Financial Statements</option>
-                            <option value="Controls and Procedures">Controls and Procedures</option>
-                            <option value="Executive Compensation">Executive Compensation</option>
-                            <option value="Legal Proceedings">Legal Proceedings</option>
-                        </select>
-                        <button id="jumpToSectionBtn" style="margin-left: 10px;">Go</button>
-                    </div>
-                    <div class="search-in-preview" style="margin-top: 10px;">
-                        <label>Search in preview:</label>
-                        <input type="text" id="searchInPreview" placeholder="Enter search term" style="margin-left: 10px;">
-                        <button id="searchInPreviewBtn" style="margin-left: 10px;">Search</button>
-                        <span id="searchInPreviewResults" style="margin-left: 10px;"></span>
-                        <button id="searchInPreviewNext" style="margin-left: 5px; display: none;">Next</button>
-                        <button id="searchInPreviewPrev" style="margin-left: 5px; display: none;">Previous</button>
+            <div id="filingPreview" style="display: none; margin-top: 20px;"></div>
+        </div>
+        
+        <div class="card">
+            <h2>Stock Performance</h2>
+            <div class="form-group">
+                <label for="stockTicker">Ticker Symbol:</label>
+                <div class="input-with-button">
+                    <input type="text" id="stockTicker" placeholder="e.g., AAPL" class="enhanced-input">
+                    <button id="getStockPrices" class="primary-button">Get Stock Data</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Time Period:</label>
+                <div class="period-selector">
+                    <button class="period-button" data-period="1mo">1M</button>
+                    <button class="period-button" data-period="3mo">3M</button>
+                    <button class="period-button" data-period="6mo">6M</button>
+                    <button class="period-button active" data-period="1y">1Y</button>
+                    <button class="period-button" data-period="2y">2Y</button>
+                    <button class="period-button" data-period="5y">5Y</button>
+                </div>
+                <input type="hidden" id="stockPeriod" value="1y">
+            </div>
+            <div id="stockInfo" class="result"></div>
+            <div id="stockCharts" style="display: none;">
+                <div class="chart-container">
+                    <h3>Price History</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="stockPriceChart"></canvas>
                     </div>
                 </div>
-                <div id="previewContent" style="border: 1px solid var(--card-border); border-radius: 4px; height: 600px; overflow: hidden;"></div>
             </div>
         </div>
     </div>
     
     <script>
-        // Determine the best API URL to use (try localhost first, then fallback to 127.0.0.1)
-        const BASE_HOST = window.location.hostname === 'localhost' ? 'localhost' : '127.0.0.1';
-        const API_URL = `http://${BASE_HOST}:8001`;
+        // Determine the best API URL to use based on environment
+        // This will be replaced with the actual API_URL by our custom HTTP server in Docker
+        const API_URL = "http://localhost:8002";
         let refreshIntervalId = null;
         let lastActiveCompanyTicker = '';
         
@@ -471,7 +711,437 @@
             document.getElementById('lastUpdated').textContent = now.toLocaleString();
         }
         
-        // Check API Status
+        // Format JSON responses in a more user-friendly way
+        function formatJsonResponse(data, type = 'default') {
+            // Create a container for the formatted response
+            const container = document.createElement('div');
+            container.className = 'formatted-response';
+            
+            // Handle different types of responses
+            switch(type) {
+                case 'api-status':
+                    // Format API status response
+                    const statusBadge = document.createElement('div');
+                    statusBadge.className = 'status-badge success';
+                    statusBadge.innerHTML = '<span class="status-icon">✓</span> API is running!';
+                    
+                    const messageBox = document.createElement('div');
+                    messageBox.className = 'message-box';
+                    messageBox.textContent = data.message || 'Simple SEC API is operational';
+                    
+                    container.appendChild(statusBadge);
+                    container.appendChild(messageBox);
+                    break;
+                    
+                case 'companies-list':
+                    // Format companies list
+                    if (Array.isArray(data) && data.length > 0) {
+                        const table = document.createElement('table');
+                        table.className = 'data-table';
+                        
+                        // Create header
+                        const thead = document.createElement('thead');
+                        const headerRow = document.createElement('tr');
+                        const headers = ['Ticker', 'Name', 'CIK', 'Actions'];
+                        
+                        headers.forEach(header => {
+                            const th = document.createElement('th');
+                            th.textContent = header;
+                            headerRow.appendChild(th);
+                        });
+                        
+                        thead.appendChild(headerRow);
+                        table.appendChild(thead);
+                        
+                        // Create body
+                        const tbody = document.createElement('tbody');
+                        
+                        data.forEach(company => {
+                            const row = document.createElement('tr');
+                            
+                            // Ticker
+                            const tickerCell = document.createElement('td');
+                            tickerCell.textContent = company.ticker;
+                            row.appendChild(tickerCell);
+                            
+                            // Name
+                            const nameCell = document.createElement('td');
+                            nameCell.textContent = company.name || company.title || 'N/A';
+                            row.appendChild(nameCell);
+                            
+                            // CIK
+                            const cikCell = document.createElement('td');
+                            cikCell.textContent = company.cik || 'N/A';
+                            row.appendChild(cikCell);
+                            
+                            // Actions
+                            const actionsCell = document.createElement('td');
+                            actionsCell.className = 'actions-cell';
+                            
+                            // View details button
+                            const viewButton = document.createElement('button');
+                            viewButton.className = 'action-button';
+                            viewButton.textContent = 'View Details';
+                            viewButton.onclick = function() {
+                                document.getElementById('companyTicker').value = company.ticker;
+                                document.getElementById('getCompany').click();
+                            };
+                            
+                            // Get stock button
+                            const stockButton = document.createElement('button');
+                            stockButton.className = 'action-button';
+                            stockButton.textContent = 'Stock Data';
+                            stockButton.onclick = function() {
+                                document.getElementById('stockTicker').value = company.ticker;
+                                document.getElementById('getStockPrices').click();
+                            };
+                            
+                            actionsCell.appendChild(viewButton);
+                            actionsCell.appendChild(stockButton);
+                            row.appendChild(actionsCell);
+                            
+                            tbody.appendChild(row);
+                        });
+                        
+                        table.appendChild(tbody);
+                        container.appendChild(table);
+                    } else {
+                        container.textContent = 'No companies found';
+                    }
+                    break;
+                    
+                case 'company-details':
+                    // Format company details
+                    if (data) {
+                        const infoCard = document.createElement('div');
+                        infoCard.className = 'info-card';
+                        
+                        // Company header
+                        const header = document.createElement('div');
+                        header.className = 'info-header';
+                        
+                        const title = document.createElement('h3');
+                        title.textContent = data.name || data.title || data.ticker;
+                        
+                        const subtitle = document.createElement('div');
+                        subtitle.className = 'info-subtitle';
+                        subtitle.textContent = `Ticker: ${data.ticker} | CIK: ${data.cik || 'N/A'}`;
+                        
+                        header.appendChild(title);
+                        header.appendChild(subtitle);
+                        infoCard.appendChild(header);
+                        
+                        // Company details
+                        const detailsGrid = document.createElement('div');
+                        detailsGrid.className = 'details-grid';
+                        
+                        // Add fields if they exist
+                        const fields = [
+                            { label: 'Exchange', value: data.exchange || 'N/A' },
+                            { label: 'Industry', value: data.industry || 'N/A' },
+                            { label: 'Sector', value: data.sector || 'N/A' },
+                            { label: 'Description', value: data.description || 'No description available' }
+                        ];
+                        
+                        fields.forEach(field => {
+                            const fieldDiv = document.createElement('div');
+                            fieldDiv.className = 'detail-field';
+                            
+                            const label = document.createElement('div');
+                            label.className = 'field-label';
+                            label.textContent = field.label;
+                            
+                            const value = document.createElement('div');
+                            value.className = 'field-value';
+                            value.textContent = field.value;
+                            
+                            fieldDiv.appendChild(label);
+                            fieldDiv.appendChild(value);
+                            detailsGrid.appendChild(fieldDiv);
+                        });
+                        
+                        infoCard.appendChild(detailsGrid);
+                        
+                        // Actions
+                        const actions = document.createElement('div');
+                        actions.className = 'info-actions';
+                        
+                        // Stock data button
+                        const stockButton = document.createElement('button');
+                        stockButton.className = 'action-button primary';
+                        stockButton.textContent = 'View Stock Data';
+                        stockButton.onclick = function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log('Stock button clicked for ticker:', data.ticker);
+                            
+                            const stockTickerInput = document.getElementById('stockTicker');
+                            if (!stockTickerInput) {
+                                console.error('Stock ticker input not found');
+                                return;
+                            }
+                            
+                            const getStockPricesBtn = document.getElementById('getStockPrices');
+                            if (!getStockPricesBtn) {
+                                console.error('Get stock prices button not found');
+                                return;
+                            }
+                            
+                            stockTickerInput.value = data.ticker;
+                            console.log('Setting stock ticker value:', data.ticker);
+                            
+                            // Scroll to the stock section
+                            const stockSection = document.querySelector('.card:has(#stockTicker)');
+                            if (stockSection) {
+                                stockSection.scrollIntoView({ behavior: 'smooth' });
+                                console.log('Scrolled to stock section');
+                            }
+                            
+                            // Trigger the click event after a short delay
+                            setTimeout(() => {
+                                console.log('Triggering stock prices button click');
+                                getStockPricesBtn.click();
+                            }, 500);
+                        };
+                        
+                        // Financial facts button
+                        const factsButton = document.createElement('button');
+                        factsButton.className = 'action-button';
+                        factsButton.textContent = 'Financial Facts';
+                        factsButton.onclick = function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log('Facts button clicked for ticker:', data.ticker);
+                            
+                            const factsTickerInput = document.getElementById('factsTicker');
+                            if (!factsTickerInput) {
+                                console.error('Facts ticker input not found');
+                                return;
+                            }
+                            
+                            const getFactsBtn = document.getElementById('getFacts');
+                            if (!getFactsBtn) {
+                                console.error('Get facts button not found');
+                                return;
+                            }
+                            
+                            factsTickerInput.value = data.ticker;
+                            console.log('Setting facts ticker value:', data.ticker);
+                            
+                            // Scroll to the facts section
+                            const factsSection = document.querySelector('.card:has(#factsTicker)');
+                            if (factsSection) {
+                                factsSection.scrollIntoView({ behavior: 'smooth' });
+                                console.log('Scrolled to facts section');
+                            }
+                            
+                            // Trigger the click event after a short delay
+                            setTimeout(() => {
+                                console.log('Triggering facts button click');
+                                getFactsBtn.click();
+                            }, 500);
+                        };
+                        
+                        // Filings button
+                        const filingsButton = document.createElement('button');
+                        filingsButton.className = 'action-button';
+                        filingsButton.textContent = '10-K Filings';
+                        filingsButton.onclick = function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log('Filings button clicked for ticker:', data.ticker);
+                            
+                            const filingsTickerInput = document.getElementById('filingsTicker');
+                            if (!filingsTickerInput) {
+                                console.error('Filings ticker input not found');
+                                return;
+                            }
+                            
+                            const getFilingsBtn = document.getElementById('getFilings');
+                            if (!getFilingsBtn) {
+                                console.error('Get filings button not found');
+                                return;
+                            }
+                            
+                            filingsTickerInput.value = data.ticker;
+                            console.log('Setting filings ticker value:', data.ticker);
+                            
+                            // Scroll to the filings section
+                            const filingsSection = document.querySelector('.card:has(#filingsTicker)');
+                            if (filingsSection) {
+                                filingsSection.scrollIntoView({ behavior: 'smooth' });
+                                console.log('Scrolled to filings section');
+                            }
+                            
+                            // Trigger the click event after a short delay
+                            setTimeout(() => {
+                                console.log('Triggering filings button click');
+                                getFilingsBtn.click();
+                            }, 500);
+                        };
+                        
+                        actions.appendChild(stockButton);
+                        actions.appendChild(factsButton);
+                        actions.appendChild(filingsButton);
+                        infoCard.appendChild(actions);
+                        
+                        container.appendChild(infoCard);
+                    } else {
+                        container.textContent = 'No company details available';
+                    }
+                    break;
+                
+                case 'financial-facts':
+                    // Format financial facts
+                    if (data) {
+                        const factsContainer = document.createElement('div');
+                        factsContainer.className = 'facts-container';
+                        
+                        // Company header
+                        const header = document.createElement('div');
+                        header.className = 'info-header';
+                        
+                        const title = document.createElement('h3');
+                        title.textContent = `Financial Facts for ${data.name} (${data.ticker})`;
+                        
+                        header.appendChild(title);
+                        factsContainer.appendChild(header);
+                        
+                        // Check if we have common metrics
+                        if (data.common_metrics && Object.keys(data.common_metrics).length > 0) {
+                            const metricsSection = document.createElement('div');
+                            metricsSection.className = 'metrics-section';
+                            
+                            const metricsTitle = document.createElement('h4');
+                            metricsTitle.textContent = 'Common Financial Metrics';
+                            metricsSection.appendChild(metricsTitle);
+                            
+                            // Create metrics table
+                            const table = document.createElement('table');
+                            table.className = 'data-table';
+                            
+                            // Create header
+                            const thead = document.createElement('thead');
+                            const headerRow = document.createElement('tr');
+                            const headers = ['Metric', 'Latest Value', 'Latest Period'];
+                            
+                            headers.forEach(header => {
+                                const th = document.createElement('th');
+                                th.textContent = header;
+                                headerRow.appendChild(th);
+                            });
+                            
+                            thead.appendChild(headerRow);
+                            table.appendChild(thead);
+                            
+                            // Create body
+                            const tbody = document.createElement('tbody');
+                            
+                            for (const [metric, values] of Object.entries(data.common_metrics)) {
+                                if (values && values.length > 0) {
+                                    // Sort values by end date (descending)
+                                    const sortedValues = [...values].sort((a, b) => 
+                                        new Date(b.end) - new Date(a.end)
+                                    );
+                                    
+                                    const latestValue = sortedValues[0];
+                                    
+                                    const row = document.createElement('tr');
+                                    
+                                    // Metric name
+                                    const metricCell = document.createElement('td');
+                                    metricCell.textContent = metric;
+                                    row.appendChild(metricCell);
+                                    
+                                    // Latest value
+                                    const valueCell = document.createElement('td');
+                                    valueCell.textContent = `$${formatNumber(latestValue.val)}`;
+                                    row.appendChild(valueCell);
+                                    
+                                    // Latest period
+                                    const periodCell = document.createElement('td');
+                                    periodCell.textContent = latestValue.end;
+                                    row.appendChild(periodCell);
+                                    
+                                    tbody.appendChild(row);
+                                }
+                            }
+                            
+                            table.appendChild(tbody);
+                            metricsSection.appendChild(table);
+                            factsContainer.appendChild(metricsSection);
+                            
+                            // Add a note about charts
+                            const chartsNote = document.createElement('div');
+                            chartsNote.className = 'charts-note';
+                            chartsNote.textContent = 'Financial charts are available below.';
+                            factsContainer.appendChild(chartsNote);
+                        } else {
+                            const noMetrics = document.createElement('p');
+                            noMetrics.textContent = 'No common financial metrics found for this company.';
+                            factsContainer.appendChild(noMetrics);
+                        }
+                        
+                        // Add a section for available taxonomies
+                        const taxonomiesSection = document.createElement('div');
+                        taxonomiesSection.className = 'taxonomies-section';
+                        
+                        const taxonomiesTitle = document.createElement('h4');
+                        taxonomiesTitle.textContent = 'Available Data Taxonomies';
+                        taxonomiesSection.appendChild(taxonomiesTitle);
+                        
+                        const taxonomiesList = document.createElement('ul');
+                        taxonomiesList.className = 'taxonomies-list';
+                        
+                        for (const taxonomy of Object.keys(data.taxonomy_data)) {
+                            const item = document.createElement('li');
+                            item.textContent = taxonomy;
+                            taxonomiesList.appendChild(item);
+                        }
+                        
+                        taxonomiesSection.appendChild(taxonomiesList);
+                        factsContainer.appendChild(taxonomiesSection);
+                        
+                        container.appendChild(factsContainer);
+                    } else {
+                        container.textContent = 'No financial facts available';
+                    }
+                    break;
+                    
+                default:
+                    // For other types, create a collapsible JSON viewer
+                    const summary = document.createElement('div');
+                    summary.className = 'json-summary';
+                    summary.textContent = 'Response received successfully. Click to view details.';
+                    
+                    const toggle = document.createElement('button');
+                    toggle.className = 'toggle-button';
+                    toggle.textContent = 'Show Details';
+                    
+                    const jsonPre = document.createElement('pre');
+                    jsonPre.className = 'json-content';
+                    jsonPre.style.display = 'none';
+                    jsonPre.textContent = JSON.stringify(data, null, 2);
+                    
+                    toggle.onclick = function() {
+                        if (jsonPre.style.display === 'none') {
+                            jsonPre.style.display = 'block';
+                            toggle.textContent = 'Hide Details';
+                        } else {
+                            jsonPre.style.display = 'none';
+                            toggle.textContent = 'Show Details';
+                        }
+                    };
+                    
+                    container.appendChild(summary);
+                    container.appendChild(toggle);
+                    container.appendChild(jsonPre);
+            }
+            
+            return container.outerHTML;
+        }
+        
+        // Function to check API status
         async function checkApiStatus() {
             const statusDiv = document.getElementById('apiStatus');
             const statusIndicator = document.getElementById('apiStatusIndicator');
@@ -482,7 +1152,7 @@
             try {
                 const response = await fetch(API_URL);
                 const data = await response.json();
-                statusDiv.innerHTML = `<span class="success">API is running!</span><br>Response: ${JSON.stringify(data, null, 2)}`;
+                statusDiv.innerHTML = formatJsonResponse(data, 'api-status');
                 statusIndicator.className = 'status-indicator status-online';
                 statusText.textContent = 'API Status: Online';
                 updateLastUpdated();
@@ -527,8 +1197,32 @@
                         
                         const tickersData = await tickersResponse.json();
                         const companies = Object.values(tickersData);
-                        resultDiv.innerHTML = `<span class="success">Successfully fetched CIK-ticker mappings directly from SEC</span><br>Found ${companies.length} mappings.<br>You can now sync individual companies.`;
+                        
+                        const result = {
+                            message: `Successfully fetched CIK-ticker mappings directly from SEC. Found ${companies.length} mappings.`,
+                            count: companies.length,
+                            success: true
+                        };
+                        
+                        resultDiv.innerHTML = formatJsonResponse(result, 'sync-result');
                         updateLastUpdated();
+                        return;
+                    }
+                    
+                    // Handle 500 errors specially, as they're likely due to SEC API rate limiting
+                    if (response.status === 500) {
+                        const errorData = await response.json();
+                        const errorDetail = errorData.detail || 'Unknown error';
+                        
+                        // Display a more informative message about possible rate limiting
+                        resultDiv.innerHTML = `
+                            <div class="warning">
+                                <p><strong>Unable to fetch fresh data from SEC API:</strong> ${errorDetail}</p>
+                                <p>This is likely due to SEC API rate limiting. The SEC limits the number of requests 
+                                   that can be made to their API.</p>
+                                <p>The system will continue to use cached data. Please try again later 
+                                   or check if the application has valid cache data.</p>
+                            </div>`;
                         return;
                     }
                     
@@ -536,7 +1230,7 @@
                 }
                 
                 const data = await response.json();
-                resultDiv.innerHTML = `<span class="success">Successfully synchronized CIK-ticker mappings</span><br>Response: ${JSON.stringify(data, null, 2)}`;
+                resultDiv.innerHTML = formatJsonResponse(data, 'sync-result');
                 updateLastUpdated();
             } catch (error) {
                 resultDiv.innerHTML = `<span class="error">Error syncing CIK-ticker mappings: ${error.message}</span><br>Please check the API logs for more details.`;
@@ -547,6 +1241,7 @@
         
         // Sync Data
         async function syncData() {
+            console.log('syncData function called');
             const ticker = document.getElementById('ticker').value.trim().toUpperCase();
             const forceRefresh = document.getElementById('forceRefresh').checked;
             const resultDiv = document.getElementById('syncResult');
@@ -556,11 +1251,16 @@
                 return;
             }
             
-            resultDiv.innerHTML = `Syncing data for ${ticker}...`;
+            resultDiv.innerHTML = `<div class="loading-spinner"></div><p>Syncing data for ${ticker}...</p>`;
             
             try {
-                const response = await fetch(`${API_URL}/companies/${ticker}/sync?force_refresh=${forceRefresh}`, {
-                    method: 'POST'
+                const url = `${API_URL}/companies/${ticker}/sync?force_refresh=${forceRefresh}`;
+                console.log('Making API request to:', url);
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 });
                 
                 if (!response.ok) {
@@ -568,7 +1268,52 @@
                 }
                 
                 const data = await response.json();
-                resultDiv.innerHTML = `<span class="success">Successfully synchronized data for ${data.name} (${data.ticker})</span><br>Response: ${JSON.stringify(data, null, 2)}`;
+                console.log('Received response:', data);
+                
+                // Create a formatted response
+                let html = '<div class="success">Data sync completed successfully!</div>';
+                html += '<div class="info-card">';
+                html += '<div class="info-header">';
+                html += `<h3>${data.name || data.ticker}</h3>`;
+                html += `<div class="info-subtitle">Ticker: ${data.ticker} | CIK: ${data.cik || 'N/A'}</div>`;
+                html += '</div>';
+                
+                // Add company details
+                html += '<div class="details-grid">';
+                if (data.sic) {
+                    html += `<div class="detail-field">
+                        <div class="field-label">SIC Code</div>
+                        <div class="field-value">${data.sic} - ${data.sicDescription || 'N/A'}</div>
+                    </div>`;
+                }
+                if (data.stateOfIncorporation) {
+                    html += `<div class="detail-field">
+                        <div class="field-label">State of Incorporation</div>
+                        <div class="field-value">${data.stateOfIncorporation}</div>
+                    </div>`;
+                }
+                if (data.fiscalYearEnd) {
+                    html += `<div class="detail-field">
+                        <div class="field-label">Fiscal Year End</div>
+                        <div class="field-value">${data.fiscalYearEnd}</div>
+                    </div>`;
+                }
+                if (data.website) {
+                    html += `<div class="detail-field">
+                        <div class="field-label">Website</div>
+                        <div class="field-value"><a href="${data.website}" target="_blank">${data.website}</a></div>
+                    </div>`;
+                }
+                html += '</div>';
+                
+                // Add action buttons
+                html += '<div class="info-actions">';
+                html += `<button class="action-button primary" onclick="getCompanyDetails()">View Full Details</button>`;
+                html += '</div>';
+                
+                html += '</div>';
+                
+                resultDiv.innerHTML = html;
                 updateLastUpdated();
                 
                 // Update the company details if this is the active company
@@ -576,18 +1321,141 @@
                     getCompanyDetails();
                 }
             } catch (error) {
+                console.error('Error in syncData:', error);
                 resultDiv.innerHTML = `<span class="error">Error syncing data: ${error.message}</span><br>Make sure you've synced CIK-ticker mappings first!`;
             }
         }
         
-        document.getElementById('syncData').addEventListener('click', syncData);
+        // Add event listeners when the document is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM Content Loaded - Setting up event listeners');
+            
+            // Data Sync button
+            const syncDataButton = document.getElementById('syncData');
+            if (syncDataButton) {
+                console.log('Found syncData button, adding click listener');
+                syncDataButton.addEventListener('click', function(e) {
+                    console.log('syncData button clicked');
+                    e.preventDefault();
+                    syncData();
+                });
+            } else {
+                console.error('syncData button not found in the DOM');
+            }
+            
+            // Add enter key support for the ticker input
+            const tickerInput = document.getElementById('ticker');
+            if (tickerInput) {
+                console.log('Found ticker input, adding keypress listener');
+                tickerInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        console.log('Enter key pressed in ticker input');
+                        syncData();
+                    }
+                });
+            } else {
+                console.error('ticker input not found in the DOM');
+            }
+            
+            // Get Companies button
+            const getCompaniesButton = document.getElementById('getCompanies');
+            if (getCompaniesButton) {
+                console.log('Found getCompanies button, adding click listener');
+                getCompaniesButton.addEventListener('click', function(e) {
+                    console.log('getCompanies button clicked');
+                    e.preventDefault();
+                    getCompanies();
+                });
+            } else {
+                console.error('getCompanies button not found in the DOM');
+            }
+            
+            // Get Company Details button
+            const getCompanyButton = document.getElementById('getCompany');
+            if (getCompanyButton) {
+                console.log('Found getCompany button, adding click listener');
+                getCompanyButton.addEventListener('click', function(e) {
+                    console.log('getCompany button clicked');
+                    e.preventDefault();
+                    getCompanyDetails();
+                });
+            } else {
+                console.error('getCompany button not found in the DOM');
+            }
+            
+            // Get Financial Facts button
+            const getFactsButton = document.getElementById('getFacts');
+            if (getFactsButton) {
+                console.log('Found getFacts button, adding click listener');
+                getFactsButton.addEventListener('click', function(e) {
+                    console.log('getFacts button clicked');
+                    e.preventDefault();
+                    getCompanyFacts();
+                });
+            } else {
+                console.error('getFacts button not found in the DOM');
+            }
+            
+            // Get Filings button
+            const getFilingsButton = document.getElementById('getFilings');
+            if (getFilingsButton) {
+                console.log('Found getFilings button, adding click listener');
+                getFilingsButton.addEventListener('click', function(e) {
+                    console.log('getFilings button clicked');
+                    e.preventDefault();
+                    getCompany10KFilings();
+                });
+            } else {
+                console.error('getFilings button not found in the DOM');
+            }
+            
+            // Get Stock Prices button
+            const getStockPricesButton = document.getElementById('getStockPrices');
+            if (getStockPricesButton) {
+                console.log('Found getStockPrices button, adding click listener');
+                getStockPricesButton.addEventListener('click', function(e) {
+                    console.log('getStockPrices button clicked');
+                    getStockPrices();
+                });
+            } else {
+                console.error('getStockPrices button not found in the DOM');
+            }
+            
+            // Add enter key support for other inputs
+            const inputs = ['companyTicker', 'factsTicker', 'filingsTicker', 'stockTicker'];
+            inputs.forEach(inputId => {
+                const input = document.getElementById(inputId);
+                if (input) {
+                    console.log(`Found ${inputId} input, adding keypress listener`);
+                    input.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            console.log(`Enter key pressed in ${inputId} input`);
+                            const buttonId = inputId.replace('Ticker', '');
+                            const button = document.getElementById(buttonId);
+                            if (button) {
+                                button.click();
+                            }
+                        }
+                    });
+                } else {
+                    console.error(`${inputId} input not found in the DOM`);
+                }
+            });
+            
+            // Setup auto-refresh
+            setupAutoRefresh();
+        });
+        
+        // Remove the standalone event listeners since they're now in DOMContentLoaded
+        // document.getElementById('getCompanies').addEventListener('click', getCompanies);
+        // document.getElementById('getCompany').addEventListener('click', getCompanyDetails);
         
         // Get Companies
         async function getCompanies() {
             const resultDiv = document.getElementById('companiesList');
             const limit = document.getElementById('companiesLimit').value;
             
-            resultDiv.innerHTML = 'Fetching companies...';
+            resultDiv.innerHTML = '<div class="loading-spinner"></div><p>Fetching companies...</p>';
             
             try {
                 const response = await fetch(`${API_URL}/companies/?limit=${limit}`);
@@ -597,20 +1465,53 @@
                 }
                 
                 const data = await response.json();
+                console.log('Received companies data:', data);
                 
-                if (data.length === 0) {
-                    resultDiv.innerHTML = 'No companies found. Please sync some data first.';
+                if (!Array.isArray(data) || data.length === 0) {
+                    resultDiv.innerHTML = '<div class="info-message">No companies found. Please sync some data first.</div>';
                     return;
                 }
                 
-                resultDiv.innerHTML = `<span class="success">Found ${data.length} companies</span><br>Response: ${JSON.stringify(data, null, 2)}`;
+                // Create HTML table directly instead of using formatJsonResponse
+                let html = '<div class="success">Companies retrieved successfully!</div>';
+                html += '<table class="data-table">';
+                html += '<thead><tr><th>Ticker</th><th>Name</th><th>CIK</th><th>Actions</th></tr></thead>';
+                html += '<tbody>';
+                
+                data.forEach(company => {
+                    // Ensure values are displayed properly
+                    const ticker = company.ticker || 'N/A';
+                    const name = company.name || 'N/A';
+                    
+                    // Handle CIK which might be an object
+                    let cik = 'N/A';
+                    if (company.cik) {
+                        if (typeof company.cik === 'object') {
+                            cik = JSON.stringify(company.cik).replace(/[{}"]/g, '');
+                        } else {
+                            cik = company.cik;
+                        }
+                    }
+                    
+                    html += `<tr>
+                        <td>${ticker}</td>
+                        <td>${name}</td>
+                        <td>${cik}</td>
+                        <td>
+                            <button class="action-button" onclick="document.getElementById('companyTicker').value='${ticker}'; getCompanyDetails();">View Details</button>
+                            <button class="action-button" onclick="document.getElementById('stockTicker').value='${ticker}'; getStockPrices();">Stock Data</button>
+                        </td>
+                    </tr>`;
+                });
+                
+                html += '</tbody></table>';
+                resultDiv.innerHTML = html;
                 updateLastUpdated();
             } catch (error) {
+                console.error('Error in getCompanies:', error);
                 resultDiv.innerHTML = `<span class="error">Error fetching companies: ${error.message}</span>`;
             }
         }
-        
-        document.getElementById('getCompanies').addEventListener('click', getCompanies);
         
         // Get Company Details
         async function getCompanyDetails() {
@@ -623,7 +1524,7 @@
             }
             
             lastActiveCompanyTicker = ticker;
-            resultDiv.innerHTML = `Fetching details for ${ticker}...`;
+            resultDiv.innerHTML = `<div class="loading-spinner"></div><p>Fetching details for ${ticker}...</p>`;
             
             try {
                 const response = await fetch(`${API_URL}/companies/${ticker}`);
@@ -633,542 +1534,59 @@
                 }
                 
                 const data = await response.json();
-                resultDiv.innerHTML = `<span class="success">Company details for ${data.ticker}</span><br>Response: ${JSON.stringify(data, null, 2)}`;
-                updateLastUpdated();
-            } catch (error) {
-                resultDiv.innerHTML = `<span class="error">Error fetching company details: ${error.message}</span>`;
-            }
-        }
-        
-        document.getElementById('getCompany').addEventListener('click', getCompanyDetails);
-        
-        // Get Company 10-K Filings
-        async function getCompany10KFilings() {
-            const ticker = document.getElementById('filingsTicker').value.trim().toUpperCase();
-            const limit = document.getElementById('filingsLimit').value;
-            const keyword = document.getElementById('keywordSearch').value.trim();
-            const resultDiv = document.getElementById('filingsList');
-            
-            if (!ticker) {
-                resultDiv.innerHTML = '<span class="error">Please enter a ticker symbol</span>';
-                return;
-            }
-            
-            resultDiv.innerHTML = `Fetching 10-K filings for ${ticker}...`;
-            
-            try {
-                const response = await fetch(`${API_URL}/companies/${ticker}/10k?limit=${limit}`);
+                console.log('Received company details:', data);
                 
-                if (!response.ok) {
-                    throw new Error(`HTTP error ${response.status}`);
-                }
+                // Create a formatted response
+                let html = '<div class="success">Company details retrieved successfully!</div>';
+                html += '<div class="info-card">';
+                html += '<div class="info-header">';
+                html += `<h3>${data.name || data.ticker}</h3>`;
+                html += `<div class="info-subtitle">Ticker: ${data.ticker} | CIK: ${data.cik || 'N/A'}</div>`;
+                html += '</div>';
                 
-                const data = await response.json();
-                
-                if (!data.filings || data.filings.length === 0) {
-                    resultDiv.innerHTML = `No 10-K filings found for ${ticker}.`;
-                    return;
-                }
-                
-                // Store filings data globally for later use
-                window.currentFilings = data.filings;
-                
-                // Format the filings as a table
-                let html = `<span class="success">Found ${data.filings.length} 10-K filings for ${data.name} (${data.ticker})</span><br><br>`;
-                
-                html += '<table style="width:100%; border-collapse: collapse;">';
-                html += '<tr><th style="text-align:left; padding:8px; border-bottom:1px solid var(--card-border);">Filing Date</th>';
-                html += '<th style="text-align:left; padding:8px; border-bottom:1px solid var(--card-border);">Form</th>';
-                html += '<th style="text-align:left; padding:8px; border-bottom:1px solid var(--card-border);">Accession Number</th>';
-                html += '<th style="text-align:left; padding:8px; border-bottom:1px solid var(--card-border);">Actions</th></tr>';
-                
-                data.filings.forEach((filing, index) => {
-                    html += `<tr>
-                        <td style="padding:8px; border-bottom:1px solid var(--card-border);">${filing.filingDate}</td>
-                        <td style="padding:8px; border-bottom:1px solid var(--card-border);">${filing.form}</td>
-                        <td style="padding:8px; border-bottom:1px solid var(--card-border);">${filing.accessionNumber}</td>
-                        <td style="padding:8px; border-bottom:1px solid var(--card-border);">
-                            <a href="${filing.edgarUrl}" target="_blank" style="color:var(--button-bg);">View Filing</a>
-                            <button onclick="previewFiling(${index})" style="margin-left: 10px; background-color: var(--button-bg);">Preview</button>
-                        </td>
-                    </tr>`;
-                });
-                
-                html += '</table>';
-                
-                // If keyword is provided, add search functionality
-                if (keyword) {
-                    html += `<h3>Search Results for "${keyword}"</h3>`;
-                    html += `<div id="searchResults">
-                        <div class="loading-spinner"></div>
-                        <p>Searching for "${keyword}" in filings...</p>
+                // Add company details
+                html += '<div class="details-grid">';
+                if (data.sic) {
+                    html += `<div class="detail-field">
+                        <div class="field-label">SIC Code</div>
+                        <div class="field-value">${data.sic} - ${data.sicDescription || 'N/A'}</div>
                     </div>`;
                 }
+                if (data.stateOfIncorporation) {
+                    html += `<div class="detail-field">
+                        <div class="field-label">State of Incorporation</div>
+                        <div class="field-value">${data.stateOfIncorporation}</div>
+                    </div>`;
+                }
+                if (data.fiscalYearEnd) {
+                    html += `<div class="detail-field">
+                        <div class="field-label">Fiscal Year End</div>
+                        <div class="field-value">${data.fiscalYearEnd}</div>
+                    </div>`;
+                }
+                if (data.website) {
+                    html += `<div class="detail-field">
+                        <div class="field-label">Website</div>
+                        <div class="field-value"><a href="${data.website}" target="_blank">${data.website}</a></div>
+                    </div>`;
+                }
+                html += '</div>';
+                
+                // Add action buttons
+                html += '<div class="info-actions">';
+                html += `<button class="action-button primary" onclick="getCompanyFacts()">View Financial Facts</button>`;
+                html += `<button class="action-button" onclick="getCompany10KFilings()">View 10-K Filings</button>`;
+                html += `<button class="action-button" onclick="getStockPrices()">View Stock Data</button>`;
+                html += '</div>';
+                
+                html += '</div>';
                 
                 resultDiv.innerHTML = html;
                 updateLastUpdated();
-                
-                // If keyword is provided, perform search
-                if (keyword) {
-                    searchInFilings(data.filings, keyword);
-                }
             } catch (error) {
-                resultDiv.innerHTML = `<span class="error">Error fetching 10-K filings: ${error.message}</span>`;
+                console.error('Error in getCompanyDetails:', error);
+                resultDiv.innerHTML = `<span class="error">Error fetching company details: ${error.message}</span>`;
             }
-        }
-        
-        // Preview a filing in an iframe
-        function previewFiling(filingIndex) {
-            const filing = window.currentFilings[filingIndex];
-            const previewDiv = document.getElementById('filingPreview');
-            const previewContent = document.getElementById('previewContent');
-            
-            // Show the preview div
-            previewDiv.style.display = 'block';
-            
-            // Scroll to the preview
-            previewDiv.scrollIntoView({ behavior: 'smooth' });
-            
-            // Create an iframe to display the filing
-            previewContent.innerHTML = `
-                <div class="loading-spinner"></div>
-                <p>Loading preview for ${filing.form} (${filing.filingDate})...</p>
-            `;
-            
-            // Create the proxy URL
-            const proxyUrl = `/sec-proxy/${encodeURIComponent(filing.edgarUrl)}`;
-            console.log("Using proxy URL:", proxyUrl);
-            
-            // First check if the proxy is working by fetching the URL
-            fetch(proxyUrl)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
-                    }
-                    
-                    // If the fetch was successful, create the iframe
-                    setTimeout(() => {
-                        previewContent.innerHTML = `<iframe class="filing-preview-iframe" src="${proxyUrl}" title="Filing Preview"></iframe>`;
-                        
-                        // Add error handling for the iframe
-                        const iframe = document.querySelector('.filing-preview-iframe');
-                        iframe.onerror = () => {
-                            previewContent.innerHTML = `
-                                <div class="error">
-                                    <p>Error loading the filing preview.</p>
-                                    <p>You can <a href="${filing.edgarUrl}" target="_blank">view the filing directly on the SEC website</a>.</p>
-                                </div>
-                            `;
-                        };
-                    }, 100);
-                })
-                .catch(error => {
-                    console.error("Error fetching filing:", error);
-                    previewContent.innerHTML = `
-                        <div class="error">
-                            <p>Error loading the filing preview: ${error.message}</p>
-                            <p>You can <a href="${filing.edgarUrl}" target="_blank">view the filing directly on the SEC website</a>.</p>
-                            <p>Technical details: ${error.toString()}</p>
-                        </div>
-                    `;
-                });
-        }
-        
-        // Close the preview
-        document.getElementById('closePreview').addEventListener('click', function() {
-            const previewDiv = document.getElementById('filingPreview');
-            previewDiv.style.display = 'none';
-        });
-        
-        // Jump to section in the filing
-        document.getElementById('jumpToSectionBtn').addEventListener('click', function() {
-            const sectionName = document.getElementById('jumpToSection').value;
-            if (!sectionName) return;
-            
-            const iframe = document.querySelector('.filing-preview-iframe');
-            if (!iframe) return;
-            
-            // Function to search for text in the iframe
-            const searchInIframe = () => {
-                try {
-                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                    const text = iframeDoc.body.innerText || iframeDoc.body.textContent;
-                    
-                    // Search for the section name
-                    const index = text.indexOf(sectionName);
-                    if (index === -1) {
-                        alert(`Section "${sectionName}" not found in this filing.`);
-                        return;
-                    }
-                    
-                    // Find the closest element containing the section name
-                    const allElements = iframeDoc.querySelectorAll('*');
-                    let closestElement = null;
-                    let minDistance = Number.MAX_VALUE;
-                    
-                    for (const element of allElements) {
-                        const elementText = element.innerText || element.textContent;
-                        if (elementText && elementText.includes(sectionName)) {
-                            const distance = Math.abs(text.indexOf(elementText) - index);
-                            if (distance < minDistance) {
-                                minDistance = distance;
-                                closestElement = element;
-                            }
-                        }
-                    }
-                    
-                    // Scroll to the element
-                    if (closestElement) {
-                        closestElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        
-                        // Highlight the element temporarily
-                        const originalBackground = closestElement.style.backgroundColor;
-                        const originalColor = closestElement.style.color;
-                        
-                        closestElement.style.backgroundColor = 'yellow';
-                        closestElement.style.color = 'black';
-                        
-                        setTimeout(() => {
-                            closestElement.style.backgroundColor = originalBackground;
-                            closestElement.style.color = originalColor;
-                        }, 3000);
-                    } else {
-                        alert(`Section "${sectionName}" found in text but could not locate the element.`);
-                    }
-                } catch (error) {
-                    console.error('Error searching in iframe:', error);
-                    alert(`Error searching for section: ${error.message}`);
-                }
-            };
-            
-            // If the iframe is not loaded yet, wait for it
-            if (iframe.contentDocument && iframe.contentDocument.readyState === 'complete') {
-                searchInIframe();
-            } else {
-                iframe.onload = searchInIframe;
-            }
-        });
-        
-        // Search for keywords in filings
-        async function searchInFilings(filings, keyword) {
-            const searchResultsDiv = document.getElementById('searchResults');
-            
-            try {
-                let searchResults = [];
-                let errorCount = 0;
-                
-                // For each filing, fetch the content and search for the keyword
-                for (let i = 0; i < filings.length; i++) {
-                    const filing = filings[i];
-                    
-                    try {
-                        // Create the proxy URL
-                        const proxyUrl = `/sec-proxy/${encodeURIComponent(filing.edgarUrl)}`;
-                        console.log(`Searching in filing ${i+1}/${filings.length}: ${filing.edgarUrl}`);
-                        
-                        // Fetch the filing content through our proxy
-                        const response = await fetch(proxyUrl);
-                        
-                        if (!response.ok) {
-                            console.error(`Error fetching filing ${filing.accessionNumber}: HTTP ${response.status}`);
-                            errorCount++;
-                            continue;
-                        }
-                        
-                        const html = await response.text();
-                        
-                        // Create a temporary div to parse the HTML
-                        const tempDiv = document.createElement('div');
-                        tempDiv.innerHTML = html;
-                        
-                        // Get the text content
-                        const text = tempDiv.textContent || tempDiv.innerText || '';
-                        
-                        // Search for the keyword (case insensitive)
-                        const regex = new RegExp(keyword, 'gi');
-                        let match;
-                        let matchCount = 0;
-                        const contexts = [];
-                        
-                        // Find all matches and their context
-                        while ((match = regex.exec(text)) !== null && matchCount < 5) {
-                            matchCount++;
-                            
-                            // Get context (100 characters before and after the match)
-                            const start = Math.max(0, match.index - 100);
-                            const end = Math.min(text.length, match.index + keyword.length + 100);
-                            let context = text.substring(start, end);
-                            
-                            // Highlight the keyword in the context
-                            const keywordRegex = new RegExp(keyword, 'gi');
-                            context = context.replace(keywordRegex, `<span class="search-highlight">$&</span>`);
-                            
-                            contexts.push(context);
-                        }
-                        
-                        if (matchCount > 0) {
-                            searchResults.push({
-                                filing: filing,
-                                matchCount: matchCount,
-                                contexts: contexts,
-                                filingIndex: i
-                            });
-                        }
-                    } catch (error) {
-                        console.error(`Error searching in filing ${filing.accessionNumber}:`, error);
-                        errorCount++;
-                    }
-                }
-                
-                // Display search results
-                if (searchResults.length === 0) {
-                    let message = `<p>No matches found for "${keyword}" in the filings.</p>`;
-                    if (errorCount > 0) {
-                        message += `<p class="warning">Note: Encountered errors while searching ${errorCount} filing(s). Some results may be missing.</p>`;
-                    }
-                    searchResultsDiv.innerHTML = message;
-                } else {
-                    let html = `<p>Found matches for "${keyword}" in ${searchResults.length} filings:</p>`;
-                    
-                    if (errorCount > 0) {
-                        html += `<p class="warning">Note: Encountered errors while searching ${errorCount} filing(s). Some results may be missing.</p>`;
-                    }
-                    
-                    searchResults.forEach(result => {
-                        html += `
-                            <div class="search-result">
-                                <div class="search-result-title">
-                                    ${result.filing.form} (${result.filing.filingDate}) - ${result.matchCount} matches
-                                </div>
-                                <button onclick="previewFiling(${result.filingIndex})" class="view-context-btn">Preview Filing</button>
-                                <div class="search-result-contexts">
-                        `;
-                        
-                        result.contexts.forEach(context => {
-                            html += `<div class="search-result-context">...${context}...</div>`;
-                        });
-                        
-                        html += `
-                                </div>
-                            </div>
-                        `;
-                    });
-                    
-                    searchResultsDiv.innerHTML = html;
-                }
-            } catch (error) {
-                searchResultsDiv.innerHTML = `<span class="error">Error searching in filings: ${error.message}</span>`;
-            }
-        }
-        
-        document.getElementById('getFilings').addEventListener('click', getCompany10KFilings);
-        
-        // Auto-refresh functionality
-        function setupAutoRefresh() {
-            const refreshSelect = document.getElementById('refreshInterval');
-            
-            refreshSelect.addEventListener('change', () => {
-                const interval = parseInt(refreshSelect.value, 10);
-                
-                // Clear existing interval if any
-                if (refreshIntervalId) {
-                    clearInterval(refreshIntervalId);
-                    refreshIntervalId = null;
-                }
-                
-                // Set new interval if not "Off"
-                if (interval > 0) {
-                    refreshIntervalId = setInterval(refreshData, interval * 1000);
-                    console.log(`Auto-refresh set to ${interval} seconds`);
-                } else {
-                    console.log('Auto-refresh turned off');
-                }
-            });
-            
-            // Trigger the change event to set up initial interval
-            refreshSelect.dispatchEvent(new Event('change'));
-        }
-        
-        // Refresh data based on what's currently active
-        async function refreshData() {
-            console.log('Auto-refreshing data...');
-            
-            // Always check API status
-            const apiIsOnline = await checkApiStatus();
-            
-            if (!apiIsOnline) {
-                console.log('API is offline, skipping other refreshes');
-                return;
-            }
-            
-            // Refresh company details if a ticker is entered
-            const companyTicker = document.getElementById('companyTicker').value.trim().toUpperCase();
-            if (companyTicker) {
-                getCompanyDetails();
-            }
-            
-            // Refresh companies list if it's been loaded before
-            const companiesList = document.getElementById('companiesList');
-            if (companiesList.textContent && !companiesList.textContent.includes('Fetching companies...')) {
-                getCompanies();
-            }
-        }
-        
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            checkApiStatus();
-            setupAutoRefresh();
-        });
-        
-        // Search within the preview iframe
-        let currentSearchMatches = [];
-        let currentSearchIndex = -1;
-        
-        document.getElementById('searchInPreviewBtn').addEventListener('click', function() {
-            searchInPreview();
-        });
-        
-        // Allow pressing Enter in the search box
-        document.getElementById('searchInPreview').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                searchInPreview();
-            }
-        });
-        
-        document.getElementById('searchInPreviewNext').addEventListener('click', function() {
-            navigateSearch(1);
-        });
-        
-        document.getElementById('searchInPreviewPrev').addEventListener('click', function() {
-            navigateSearch(-1);
-        });
-        
-        function searchInPreview() {
-            const searchTerm = document.getElementById('searchInPreview').value.trim();
-            if (!searchTerm) return;
-            
-            const iframe = document.querySelector('.filing-preview-iframe');
-            if (!iframe) return;
-            
-            try {
-                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                
-                // Reset previous search
-                resetPreviousSearch(iframeDoc);
-                
-                // Create a text node containing the search term
-                const searchTextNode = document.createTextNode(searchTerm);
-                
-                // Find all text nodes in the document
-                const textNodes = [];
-                const walker = document.createTreeWalker(
-                    iframeDoc.body,
-                    NodeFilter.SHOW_TEXT,
-                    { acceptNode: node => node.nodeValue.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT },
-                    false
-                );
-                
-                while (walker.nextNode()) {
-                    textNodes.push(walker.currentNode);
-                }
-                
-                // Search for matches in text nodes
-                currentSearchMatches = [];
-                const searchRegex = new RegExp(searchTerm, 'gi');
-                
-                textNodes.forEach(textNode => {
-                    const nodeText = textNode.nodeValue;
-                    let match;
-                    
-                    while ((match = searchRegex.exec(nodeText)) !== null) {
-                        const range = iframeDoc.createRange();
-                        range.setStart(textNode, match.index);
-                        range.setEnd(textNode, match.index + searchTerm.length);
-                        
-                        currentSearchMatches.push({
-                            range: range,
-                            node: textNode
-                        });
-                    }
-                });
-                
-                // Update search results
-                const resultsSpan = document.getElementById('searchInPreviewResults');
-                if (currentSearchMatches.length === 0) {
-                    resultsSpan.textContent = `No matches found for "${searchTerm}"`;
-                    document.getElementById('searchInPreviewNext').style.display = 'none';
-                    document.getElementById('searchInPreviewPrev').style.display = 'none';
-                    return;
-                }
-                
-                resultsSpan.textContent = `Found ${currentSearchMatches.length} matches`;
-                document.getElementById('searchInPreviewNext').style.display = 'inline-block';
-                document.getElementById('searchInPreviewPrev').style.display = 'inline-block';
-                
-                // Navigate to the first match
-                currentSearchIndex = 0;
-                highlightCurrentMatch();
-                
-            } catch (error) {
-                console.error('Error searching in preview:', error);
-                document.getElementById('searchInPreviewResults').textContent = `Error: ${error.message}`;
-            }
-        }
-        
-        function navigateSearch(direction) {
-            if (currentSearchMatches.length === 0) return;
-            
-            // Update current index
-            currentSearchIndex = (currentSearchIndex + direction + currentSearchMatches.length) % currentSearchMatches.length;
-            
-            // Highlight the current match
-            highlightCurrentMatch();
-        }
-        
-        function highlightCurrentMatch() {
-            if (currentSearchIndex < 0 || currentSearchIndex >= currentSearchMatches.length) return;
-            
-            const match = currentSearchMatches[currentSearchIndex];
-            const iframe = document.querySelector('.filing-preview-iframe');
-            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-            
-            // Reset previous highlights
-            resetPreviousSearch(iframeDoc);
-            
-            // Create a highlight span
-            const highlightSpan = iframeDoc.createElement('span');
-            highlightSpan.className = 'current-search-highlight';
-            highlightSpan.style.backgroundColor = 'orange';
-            highlightSpan.style.color = 'black';
-            
-            // Apply the highlight
-            try {
-                match.range.surroundContents(highlightSpan);
-                
-                // Scroll to the highlight
-                highlightSpan.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'center'
-                });
-                
-                // Update the results counter
-                document.getElementById('searchInPreviewResults').textContent = 
-                    `Match ${currentSearchIndex + 1} of ${currentSearchMatches.length}`;
-            } catch (e) {
-                console.error('Error highlighting match:', e);
-            }
-        }
-        
-        function resetPreviousSearch(doc) {
-            // Remove any existing highlights
-            const highlights = doc.querySelectorAll('.current-search-highlight');
-            highlights.forEach(highlight => {
-                const parent = highlight.parentNode;
-                while (highlight.firstChild) {
-                    parent.insertBefore(highlight.firstChild, highlight);
-                }
-                parent.removeChild(highlight);
-            });
         }
         
         // Get Company Financial Facts
@@ -1181,11 +1599,12 @@
                 return;
             }
             
-            resultDiv.innerHTML = `Fetching financial facts for ${ticker}...`;
-            document.getElementById('financialCharts').style.display = 'none';
+            resultDiv.innerHTML = `<div class="loading-spinner"></div><p>Fetching financial facts for ${ticker}...</p>`;
             
             try {
-                const response = await fetch(`${API_URL}/companies/${ticker}/facts`);
+                const url = `${API_URL}/companies/${ticker}/facts`;
+                console.log('Fetching company facts from:', url);
+                const response = await fetch(url);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error ${response.status}`);
@@ -1193,56 +1612,130 @@
                 
                 const data = await response.json();
                 
-                // Display a summary of the facts
-                let html = `<span class="success">Financial facts for ${data.name} (${data.ticker})</span><br><br>`;
+                // Display formatted facts
+                resultDiv.innerHTML = formatJsonResponse(data, 'financial-facts');
                 
-                // Check if we have common metrics
+                // Show the charts if we have common metrics
                 if (data.common_metrics && Object.keys(data.common_metrics).length > 0) {
-                    html += '<h3>Common Financial Metrics</h3>';
-                    html += '<table style="width:100%; border-collapse: collapse;">';
-                    html += '<tr><th style="text-align:left; padding:8px; border-bottom:1px solid var(--card-border);">Metric</th>';
-                    html += '<th style="text-align:left; padding:8px; border-bottom:1px solid var(--card-border);">Latest Value</th>';
-                    html += '<th style="text-align:left; padding:8px; border-bottom:1px solid var(--card-border);">Latest Period</th></tr>';
-                    
-                    for (const [metric, values] of Object.entries(data.common_metrics)) {
-                        if (values && values.length > 0) {
-                            // Sort values by end date (descending)
-                            const sortedValues = [...values].sort((a, b) => 
-                                new Date(b.end) - new Date(a.end)
-                            );
-                            
-                            const latestValue = sortedValues[0];
-                            
-                            html += `<tr>
-                                <td style="padding:8px; border-bottom:1px solid var(--card-border);">${metric}</td>
-                                <td style="padding:8px; border-bottom:1px solid var(--card-border);">$${formatNumber(latestValue.val)}</td>
-                                <td style="padding:8px; border-bottom:1px solid var(--card-border);">${latestValue.end}</td>
-                            </tr>`;
-                        }
-                    }
-                    
-                    html += '</table>';
-                    
-                    // Show the charts
                     document.getElementById('financialCharts').style.display = 'block';
                     
                     // Create charts
                     createFinancialCharts(data.common_metrics);
-                } else {
-                    html += '<p>No common financial metrics found for this company.</p>';
                 }
                 
-                // Add a section for available taxonomies
-                html += '<h3>Available Data Taxonomies</h3>';
-                html += '<ul>';
-                for (const taxonomy of Object.keys(data.taxonomy_data)) {
-                    html += `<li>${taxonomy}</li>`;
-                }
-                html += '</ul>';
-                
-                resultDiv.innerHTML = html;
+                updateLastUpdated();
             } catch (error) {
                 resultDiv.innerHTML = `<span class="error">Error fetching financial facts: ${error.message}</span>`;
+            }
+        }
+        
+        // Get 10-K filings for a company
+        async function getCompany10KFilings() {
+            // Use the correct element ID - filingsList instead of filingsResult
+            const resultDiv = document.getElementById('filingsList');
+            if (!resultDiv) {
+                console.error('filingsList element not found');
+                return;
+            }
+            
+            // Safely get the keyword value if the element exists
+            let keyword = '';
+            const keywordElement = document.getElementById('filingKeyword');
+            if (keywordElement) {
+                keyword = keywordElement.value.trim();
+            }
+            
+            // Get the ticker from the input field
+            const ticker = document.getElementById('filingsTicker').value.trim().toUpperCase();
+            
+            if (!ticker) {
+                resultDiv.innerHTML = '<span class="error">Please enter a ticker symbol</span>';
+                return;
+            }
+            
+            resultDiv.innerHTML = `<div class="loading-spinner"></div><p>Fetching 10-K filings for ${ticker}...</p>`;
+            
+            try {
+                const url = `${API_URL}/companies/${ticker}/10k?limit=${document.getElementById('filingsLimit').value}`;
+                console.log('Fetching 10-K filings from:', url);
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Received filings data:', data);
+                
+                // Hide the preview if it's shown
+                document.getElementById('filingPreview').style.display = 'none';
+                
+                // Check if we have filings
+                if (!data.filings || data.filings.length === 0) {
+                    resultDiv.innerHTML = '<div class="info-message">No 10-K filings found for this company.</div>';
+                    return;
+                }
+                
+                // Store filings for functionality
+                window.currentFilings = data.filings;
+                
+                // Create a formatted table for the filings
+                let html = `<div class="success">Found ${data.filings.length} 10-K filings for ${data.name || ticker}</div>`;
+                
+                html += '<table class="data-table">';
+                html += '<thead><tr><th>Filing Date</th><th>Form</th><th>Description</th><th>Actions</th></tr></thead>';
+                html += '<tbody>';
+                
+                data.filings.forEach((filing, index) => {
+                    // Detect future dates and add warning class
+                    const filingDate = new Date(filing.filingDate);
+                    const currentDate = new Date();
+                    const isInFuture = filingDate > currentDate;
+                    const rowClass = isInFuture ? 'class="future-filing"' : '';
+                    
+                    html += `<tr ${rowClass}>
+                        <td>
+                            ${filing.filingDate} 
+                            ${isInFuture ? '<span class="warning-badge">Future</span>' : ''}
+                        </td>
+                        <td>${filing.form}</td>
+                        <td>${filing.description || 'Annual Report'}</td>
+                        <td>
+                            <div class="sec-links-buttons">
+                                <a href="${filing.edgarUrl}" target="_blank" class="action-button">SEC Viewer</a>
+                                <a href="${filing.legacyUrl || filing.edgarUrl}" target="_blank" class="action-button">Legacy View</a>
+                                ${filing.indexUrl ? `<a href="${filing.indexUrl}" target="_blank" class="action-button">Index Page</a>` : ''}
+                            </div>
+                        </td>
+                    </tr>`;
+                });
+                
+                html += '</tbody></table>';
+                
+                resultDiv.innerHTML = html;
+                
+                // Show the filing preview section but keep it empty
+                document.getElementById('filingPreview').style.display = 'block';
+                
+                // Add event listeners for table rows
+                document.querySelectorAll('#filingsList .data-table tbody tr').forEach((row, index) => {
+                    row.addEventListener('click', function(e) {
+                        // Only respond to clicks outside of action buttons
+                        if (!e.target.closest('.action-button')) {
+                            // Highlight the selected row
+                            document.querySelectorAll('#filingsList .data-table tbody tr').forEach(r => {
+                                r.classList.remove('selected');
+                            });
+                            row.classList.add('selected');
+                        }
+                    });
+                });
+                
+                updateLastUpdated();
+                
+            } catch (error) {
+                console.error('Error in getCompany10KFilings:', error);
+                resultDiv.innerHTML = `<span class="error">Error fetching 10-K filings: ${error.message}</span>`;
             }
         }
         
@@ -1710,7 +2203,494 @@
             }
         }
         
-        document.getElementById('getFacts').addEventListener('click', getCompanyFacts);
+        // Get Stock Prices
+        async function getStockPrices() {
+            const ticker = document.getElementById('stockTicker').value.trim().toUpperCase();
+            const period = document.getElementById('stockPeriod').value;
+            const resultDiv = document.getElementById('stockInfo');
+            
+            if (!ticker) {
+                resultDiv.innerHTML = '<span class="error">Please enter a ticker symbol</span>';
+                return;
+            }
+            
+            resultDiv.innerHTML = `<div class="loading-spinner"></div><p>Fetching stock data for ${ticker}...</p>`;
+            document.getElementById('stockCharts').style.display = 'none';
+            
+            try {
+                const url = `${API_URL}/companies/${ticker}/stock-prices?period=${period}`;
+                console.log('Fetching stock prices from:', url);
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Create a modern stock price display
+                let html = '';
+                
+                // Show warning if using fallback data
+                if (data.is_fallback_data) {
+                    html += `<div class="fallback-warning">
+                        ⚠️ Note: Using simulated data because stock data APIs are currently unavailable or rate-limited. 
+                        The data shown is for demonstration purposes only and does not reflect actual market values.
+                    </div>`;
+                }
+                
+                // Main stock price container
+                html += `<div class="stock-price-container">`;
+                
+                // Stock header with name and ticker
+                html += `<div class="stock-header">
+                    <div>
+                        <span class="stock-name">${data.info.name || ticker}</span>
+                        <span class="stock-ticker">${data.ticker}</span>
+                    </div>
+                    <div class="last-updated">
+                        Last updated: ${new Date(data.last_updated).toLocaleString()}
+                    </div>
+                </div>`;
+                
+                // Price row with current price and daily change
+                html += `<div class="stock-price-row">`;
+                
+                // Current price
+                html += `<div class="price-display">
+                    <div class="price-label">Current Price</div>
+                    <div class="current-price">$${formatNumber(data.latest_price)}</div>`;
+                
+                // Add daily change if available
+                if (data.changes.daily !== undefined) {
+                    const changeClass = data.changes.daily >= 0 ? 'positive' : 'negative';
+                    const changeArrow = data.changes.daily >= 0 ? '▲' : '▼';
+                    const changePercent = (data.changes.daily * 100).toFixed(2);
+                    
+                    html += `<div class="price-change ${changeClass}">
+                        <span class="change-arrow">${changeArrow}</span>
+                        ${changePercent}%
+                    </div>`;
+                }
+                
+                html += `</div>`;
+                
+                // Company metrics
+                html += `<div class="stock-metrics">`;
+                
+                // Add company info metrics if available
+                if (data.info) {
+                    if (data.info.market_cap) {
+                        html += `<div class="metric-card">
+                            <div class="metric-label">Market Cap</div>
+                            <div class="metric-value">$${formatNumber(data.info.market_cap)}</div>
+                        </div>`;
+                    }
+                    
+                    if (data.info.pe_ratio) {
+                        html += `<div class="metric-card">
+                            <div class="metric-label">P/E Ratio</div>
+                            <div class="metric-value">${data.info.pe_ratio.toFixed(2)}</div>
+                        </div>`;
+                    }
+                    
+                    if (data.info.sector) {
+                        html += `<div class="metric-card">
+                            <div class="metric-label">Sector</div>
+                            <div class="metric-value">${data.info.sector}</div>
+                        </div>`;
+                    }
+                    
+                    if (data.info.fifty_two_week_high && data.info.fifty_two_week_low) {
+                        html += `<div class="metric-card">
+                            <div class="metric-label">52-Week Range</div>
+                            <div class="metric-value">$${formatNumber(data.info.fifty_two_week_low)} - $${formatNumber(data.info.fifty_two_week_high)}</div>
+                        </div>`;
+                    }
+                }
+                
+                html += `</div>`;
+                
+                // Price changes grid
+                html += `<h3>Price Changes</h3>
+                <div class="changes-grid">`;
+                
+                // Add all available time period changes
+                const periods = {
+                    daily: '1 Day',
+                    weekly: '1 Week',
+                    monthly: '1 Month',
+                    three_month: '3 Months',
+                    six_month: '6 Months',
+                    ytd: 'Year to Date',
+                    yearly: '1 Year'
+                };
+                
+                for (const [key, label] of Object.entries(periods)) {
+                    if (data.changes[key] !== undefined) {
+                        const changeClass = data.changes[key] >= 0 ? 'positive' : 'negative';
+                        const changeArrow = data.changes[key] >= 0 ? '▲' : '▼';
+                        const changePercent = (data.changes[key] * 100).toFixed(2);
+                        
+                        html += `<div class="change-card">
+                            <div class="change-period">${label}</div>
+                            <div class="change-value ${changeClass}">${changeArrow} ${changePercent}%</div>
+                        </div>`;
+                    }
+                }
+                
+                html += `</div>`;
+                html += `</div>`; // Close stock-price-container
+                
+                resultDiv.innerHTML = html;
+                
+                // Show charts
+                document.getElementById('stockCharts').style.display = 'block';
+                
+                // Create charts
+                createStockPriceChart('stockPriceChart', data.stock_data, false);
+                
+                updateLastUpdated();
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">Error fetching stock data: ${error.message}</span>`;
+            }
+        }
+        
+        document.getElementById('getStockPrices').addEventListener('click', function() {
+            console.log('getStockPrices button clicked');
+            getStockPrices();
+        });
+        
+        // Function to setup auto-refresh
+        function setupAutoRefresh() {
+            const refreshIntervalSelect = document.getElementById('refreshInterval');
+            
+            // Update interval when the select value changes
+            refreshIntervalSelect.addEventListener('change', function() {
+                const intervalSeconds = parseInt(this.value);
+                console.log(`Auto-refresh set to ${intervalSeconds} seconds`);
+                
+                // Clear any existing interval
+                if (refreshIntervalId) {
+                    clearInterval(refreshIntervalId);
+                    refreshIntervalId = null;
+                }
+                
+                // Set new interval if not 0
+                if (intervalSeconds > 0) {
+                    refreshIntervalId = setInterval(function() {
+                        checkApiStatus();
+                        // If active company, refresh its data
+                        if (lastActiveCompanyTicker) {
+                            document.getElementById('companyTicker').value = lastActiveCompanyTicker;
+                            getCompanyDetails();
+                        }
+                    }, intervalSeconds * 1000);
+                }
+            });
+            
+            // Trigger initial setup
+            const event = new Event('change');
+            refreshIntervalSelect.dispatchEvent(event);
+        }
+        
+        // Add event listeners for period buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const periodButtons = document.querySelectorAll('.period-button');
+            const periodInput = document.getElementById('stockPeriod');
+            
+            periodButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    periodButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Update hidden input value
+                    periodInput.value = this.dataset.period;
+                    
+                    // If a ticker is already entered, fetch the data with the new period
+                    const ticker = document.getElementById('stockTicker').value.trim();
+                    if (ticker) {
+                        getStockPrices();
+                    }
+                });
+            });
+            
+            // Add enter key support for the ticker input
+            document.getElementById('stockTicker').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    getStockPrices();
+                }
+            });
+        });
+        
+        // Function to create a stock price chart
+        function createStockPriceChart(canvasId, stockData, showSP500Comparison) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // Clear any existing chart
+            if (window[canvasId + 'Chart']) {
+                window[canvasId + 'Chart'].destroy();
+            }
+            
+            // Prepare data
+            const dates = stockData.map(item => item.date);
+            const prices = stockData.map(item => item.close);
+            
+            // Calculate min and max for better y-axis scaling
+            const minPrice = Math.min(...prices) * 0.95; // 5% padding below
+            const maxPrice = Math.max(...prices) * 1.05; // 5% padding above
+            
+            // Get theme colors from CSS variables
+            const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+            const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+            const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+            
+            // Create gradient for the area fill
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            if (isDarkMode) {
+                gradient.addColorStop(0, 'rgba(75, 192, 192, 0.4)');
+                gradient.addColorStop(1, 'rgba(75, 192, 192, 0.0)');
+            } else {
+                gradient.addColorStop(0, 'rgba(75, 192, 192, 0.4)');
+                gradient.addColorStop(1, 'rgba(75, 192, 192, 0.0)');
+            }
+            
+            // Create the chart
+            window[canvasId + 'Chart'] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Stock Price',
+                        data: prices,
+                        backgroundColor: gradient,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        pointHoverRadius: 6,
+                        pointHoverBackgroundColor: 'rgba(75, 192, 192, 1)',
+                        pointHoverBorderColor: '#fff',
+                        pointHoverBorderWidth: 2,
+                        fill: true,
+                        tension: 0.2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: isDarkMode ? 'rgba(30, 30, 30, 0.8)' : 'rgba(255, 255, 255, 0.8)',
+                            titleColor: isDarkMode ? '#fff' : '#333',
+                            bodyColor: isDarkMode ? '#fff' : '#333',
+                            borderColor: isDarkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)',
+                            borderWidth: 1,
+                            padding: 12,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Price: $' + formatNumber(context.raw);
+                                },
+                                title: function(tooltipItems) {
+                                    // Format the date nicely
+                                    const date = new Date(tooltipItems[0].label);
+                                    return date.toLocaleDateString(undefined, { 
+                                        year: 'numeric', 
+                                        month: 'short', 
+                                        day: 'numeric' 
+                                    });
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: minPrice,
+                            max: maxPrice,
+                            grid: {
+                                color: gridColor,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: textColor,
+                                font: {
+                                    size: 12
+                                },
+                                callback: function(value) {
+                                    return '$' + formatNumber(value);
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: textColor,
+                                font: {
+                                    size: 12
+                                },
+                                maxRotation: 0,
+                                maxTicksLimit: 8
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    elements: {
+                        line: {
+                            tension: 0.4
+                        }
+                    },
+                    layout: {
+                        padding: {
+                            top: 20,
+                            right: 20,
+                            bottom: 10,
+                            left: 10
+                        }
+                    }
+                }
+            });
+            
+            // Add chart height for better visualization
+            canvas.parentNode.style.height = '400px';
+        }
+        
+        // Function to create a relative performance chart
+        function createRelativePerformanceChart(canvasId, stockData, sp500Data) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // Clear any existing chart
+            if (window[canvasId + 'Chart']) {
+                window[canvasId + 'Chart'].destroy();
+            }
+            
+            // Prepare data
+            const dates = stockData.map(item => item.date);
+            const stockValues = stockData.map(item => item.value);
+            const sp500Values = sp500Data.map(item => item.value);
+            
+            // Create the chart
+            window[canvasId + 'Chart'] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        {
+                            label: 'Stock Performance',
+                            data: stockValues,
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            pointHoverRadius: 5,
+                            fill: false,
+                            tension: 0.1
+                        },
+                        {
+                            label: 'S&P 500 Performance',
+                            data: sp500Values,
+                            backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                            borderColor: 'rgba(153, 102, 255, 1)',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            pointHoverRadius: 5,
+                            fill: false,
+                            tension: 0.1,
+                            borderDash: [5, 5]
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Normalized Performance (Base = 100)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Preview a filing in an iframe
+        async function previewFiling(index) {
+            const filing = window.currentFilings[index];
+            if (!filing) {
+                console.error('No filing found at index:', index);
+                return;
+            }
+
+            // Debug logging
+            console.log('Filing object:', JSON.stringify(filing, null, 2));
+            
+            // Check if filing date is in the future
+            const filingDate = new Date(filing.filingDate);
+            const currentDate = new Date();
+            const isInFuture = filingDate > currentDate;
+            
+            const previewDiv = document.getElementById('filingPreview');
+            previewDiv.style.display = 'block';
+            
+            if (isInFuture) {
+                // Display special message for future filings
+                previewDiv.innerHTML = `
+                    <div class="sec-links-container">
+                        <div class="sec-links-header">
+                            <h3>Future 10-K Filing: ${filing.filingDate}</h3>
+                            <button class="close-button" onclick="document.getElementById('filingPreview').style.display = 'none'">×</button>
+                        </div>
+                        <div style="padding: 20px; text-align: center; background-color: var(--warning-bg); color: var(--warning-text);">
+                            <h4>⚠️ This filing has a future date and is not yet available</h4>
+                            <p>Filing date ${filing.filingDate} is in the future. This filing will not be accessible until it is officially published by the SEC.</p>
+                            <p>This appears to be a data issue or a placeholder for an upcoming filing.</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Direct SEC links without preview
+                previewDiv.innerHTML = `
+                    <div class="sec-links-container">
+                        <div class="sec-links-header">
+                            10-K Filing: ${filing.filingDate}
+                            <button class="close-button" onclick="document.getElementById('filingPreview').style.display = 'none'">×</button>
+                        </div>
+                        <div class="sec-links-description">
+                            <p>This 10-K filing is available directly from the SEC website. Please use one of the following links to view:</p>
+                        </div>
+                        <div class="sec-links-buttons">
+                            <a href="${filing.edgarUrl}" target="_blank" class="action-button">SEC Viewer</a>
+                            <a href="${filing.legacyUrl || filing.edgarUrl}" target="_blank" class="action-button">Legacy View</a>
+                            ${filing.indexUrl ? `<a href="${filing.indexUrl}" target="_blank" class="action-button">Index Page</a>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+        }
     </script>
 </body>
 </html> 
