@@ -503,250 +503,81 @@
             border-radius: 8px;
         }
 
-        .ratio-header {
-            margin-bottom: 24px;
-            text-align: center;
-        }
-
-        .ratio-header h2 {
-            color: var(--text-primary);
-            margin-bottom: 8px;
-        }
-
-        .ratio-header p {
-            color: var(--text-secondary);
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
         .ratio-sections {
             display: flex;
             flex-direction: column;
-            gap: 30px;
+            gap: 24px;
         }
 
         .ratio-section {
-            margin-bottom: 10px;
-            padding: 15px;
-            background-color: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
         }
 
         .ratio-section h3 {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             color: var(--text-primary);
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px;
-            font-size: 1.3em;
-        }
-
-        .section-intro {
-            color: var(--text-secondary);
-            font-size: 0.95em;
-            margin-bottom: 20px;
-            font-style: italic;
+            padding-bottom: 5px;
         }
 
         .ratio-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
         }
 
         .ratio-card {
             background-color: var(--background-primary);
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-            border-left: 5px solid var(--border-color);
-            transition: all 0.25s ease;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            position: relative;
-            overflow: hidden;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--border-color);
+            transition: transform 0.2s ease;
         }
 
         .ratio-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-3px);
         }
 
         .ratio-card h4 {
             margin-top: 0;
-            margin-bottom: 15px;
+            margin-bottom: 8px;
             color: var(--text-primary);
-            font-size: 1.1em;
-            border-bottom: 1px dashed rgba(125, 125, 125, 0.2);
-            padding-bottom: 8px;
         }
 
         .ratio-value {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: bold;
-            margin: 12px 0;
+            margin: 10px 0;
             color: var(--text-accent);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .ratio-value.positive {
-            color: var(--success-color);
-        }
-
-        .ratio-value.negative {
-            color: var(--danger-color);
-        }
-
-        .ratio-value.neutral {
-            color: var(--text-accent);
-        }
-
-        .ratio-value::after {
-            font-size: 14px;
-            font-weight: normal;
-            padding: 3px 8px;
-            border-radius: 12px;
-            margin-left: 8px;
-        }
-
-        .ratio-value.positive::after {
-            content: "Good";
-            background-color: rgba(40, 167, 69, 0.15);
-            color: var(--success-color);
-        }
-
-        .ratio-value.negative::after {
-            content: "Concern";
-            background-color: rgba(220, 53, 69, 0.15);
-            color: var(--danger-color);
         }
 
         .ratio-description {
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             color: var(--text-secondary);
-            font-size: 0.95em;
-            line-height: 1.4;
+            font-size: 0.9em;
         }
 
         .ratio-formula {
             font-size: 0.9em;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             color: var(--text-secondary);
-            background-color: rgba(0, 0, 0, 0.05);
-            padding: 8px;
-            border-radius: 6px;
-            font-family: monospace;
         }
 
         .ratio-interpretation {
-            font-size: 0.9em;
-            margin: 12px 0;
+            font-size: 0.85em;
+            margin-bottom: 8px;
             color: var(--text-secondary);
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .interpretation-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .interpretation-item::before {
-            content: "•";
-            font-weight: bold;
+            padding: 8px;
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
         }
 
         .ratio-year {
-            font-size: 0.85em;
+            font-size: 0.8em;
             color: var(--text-muted);
             text-align: right;
             font-style: italic;
-            margin-top: auto;
-            padding-top: 10px;
-        }
-
-        .ratio-status {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 0.8em;
-            font-weight: bold;
-        }
-
-        .ratio-status.positive {
-            background-color: rgba(40, 167, 69, 0.15);
-            color: var(--success-color);
-        }
-
-        .ratio-status.negative {
-            background-color: rgba(220, 53, 69, 0.15);
-            color: var(--danger-color);
-        }
-
-        .ratio-metadata {
-            margin-top: 25px;
-            font-size: 0.85em;
-            color: var(--text-muted);
-            text-align: right;
-            border-top: 1px solid var(--border-color);
-            padding-top: 10px;
-        }
-
-        /* New ratio chart visualization */
-        .ratio-visual {
-            height: 6px;
-            background-color: #e9ecef;
-            border-radius: 3px;
-            margin: 5px 0 15px 0;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .ratio-visual-value {
-            height: 100%;
-            border-radius: 3px;
-            transition: width 1s ease-in-out;
-        }
-
-        .ratio-visual-value.positive {
-            background-color: var(--success-color);
-        }
-
-        .ratio-visual-value.negative {
-            background-color: var(--danger-color);
-        }
-
-        .ratio-visual-value.neutral {
-            background-color: var(--text-accent);
-        }
-
-        .ratio-visual-markers {
-            position: relative;
-            height: 15px;
-            margin-bottom: 10px;
-            font-size: 0.7em;
-            color: var(--text-muted);
-        }
-
-        .ratio-visual-marker {
-            position: absolute;
-            transform: translateX(-50%);
-        }
-
-        .ratio-visual-marker::before {
-            content: "";
-            display: block;
-            height: 5px;
-            width: 1px;
-            background-color: var(--text-muted);
-            margin: 0 auto 2px;
         }
 
         /* Status indicators */
@@ -765,243 +596,6 @@
             text-align: right;
             border-top: 1px solid var(--border-color);
             padding-top: 10px;
-        }
-
-        /* Notification styling */
-        #notification {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 300px;
-            background-color: #f8f9fa;
-            border-left: 4px solid #007bff;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            border-radius: 4px;
-            overflow: hidden;
-            z-index: 1000;
-            opacity: 0;
-            transform: translateY(100px);
-            transition: all 0.3s ease;
-            display: none;
-        }
-
-        #notification.show {
-            opacity: 1;
-            transform: translateY(0);
-            display: block;
-        }
-
-        #notification.error {
-            border-left-color: #dc3545;
-        }
-
-        #notification.warning {
-            border-left-color: #ffc107;
-        }
-
-        #notification.success {
-            border-left-color: #28a745;
-        }
-
-        .notification-header {
-            padding: 10px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        .notification-title {
-            font-weight: bold;
-            color: #495057;
-        }
-
-        .notification-close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            line-height: 1;
-            padding: 0;
-            cursor: pointer;
-            color: #6c757d;
-        }
-
-        .notification-body {
-            padding: 15px;
-            color: #212529;
-        }
-
-        /* Error message styling */
-        .error-message {
-            padding: 20px;
-            border-radius: 5px;
-            background-color: rgba(244, 67, 54, 0.05);
-            border: 1px solid rgba(244, 67, 54, 0.2);
-            color: var(--text-primary);
-            margin: 20px 0;
-        }
-
-        .error-message h3 {
-            margin-top: 0;
-            color: #f44336;
-            margin-bottom: 15px;
-        }
-
-        .error-message p {
-            margin-bottom: 15px;
-        }
-
-        .error-message ol {
-            margin-left: 20px;
-            margin-bottom: 15px;
-        }
-
-        .error-message li {
-            margin-bottom: 8px;
-        }
-
-        /* Toggle button styling */
-        #themeSwitch {
-            display: none;
-        }
-        
-        .theme-toggle-label {
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        /* Add your own styles here */
-        
-        /* Financial Ratios Styling */
-        .financial-ratios {
-            margin: 20px 0;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            overflow: hidden;
-            background-color: var(--card-bg);
-        }
-        
-        .ratios-header {
-            background-color: var(--header-bg);
-            padding: 15px 20px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .ratios-header h3 {
-            margin: 0;
-            color: var(--heading-color);
-        }
-        
-        .ratios-header .ticker {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: var(--primary-color);
-            padding: 5px 10px;
-            border-radius: 4px;
-            background-color: rgba(var(--primary-rgb), 0.1);
-        }
-        
-        .ratios-content {
-            padding: 20px;
-        }
-        
-        .ratio-category {
-            margin-bottom: 25px;
-        }
-        
-        .ratio-category h4 {
-            margin-top: 0;
-            margin-bottom: 15px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid var(--border-color);
-            color: var(--heading-color);
-        }
-        
-        .ratio-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 15px;
-        }
-        
-        .ratio-item {
-            padding: 15px;
-            border-radius: 6px;
-            background-color: var(--bg-color);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            transition: all 0.2s ease;
-        }
-        
-        .ratio-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .ratio-name {
-            font-weight: bold;
-            font-size: 1.1em;
-            margin-bottom: 8px;
-            color: var(--heading-color);
-            text-transform: capitalize;
-        }
-        
-        .ratio-value {
-            font-size: 1.5em;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        
-        .ratio-description {
-            color: var(--text-muted);
-            margin-bottom: 8px;
-            font-size: 0.9em;
-        }
-        
-        .ratio-formula {
-            font-family: monospace;
-            background-color: rgba(0, 0, 0, 0.05);
-            padding: 5px 8px;
-            border-radius: 4px;
-            margin-bottom: 8px;
-            font-size: 0.9em;
-        }
-        
-        .ratio-year {
-            font-size: 0.8em;
-            color: var(--text-muted);
-        }
-        
-        /* Status indicators */
-        .ratio-item.good {
-            border-left: 4px solid #4caf50;
-        }
-        
-        .ratio-item.good .ratio-value {
-            color: #4caf50;
-        }
-        
-        .ratio-item.concern {
-            border-left: 4px solid #ff9800;
-        }
-        
-        .ratio-item.concern .ratio-value {
-            color: #ff9800;
-        }
-        
-        .ratio-item.neutral {
-            border-left: 4px solid #2196f3;
-        }
-        
-        .ratios-metadata {
-            text-align: right;
-            font-size: 0.8em;
-            color: var(--text-muted);
-            margin-top: 10px;
-            padding: 0 20px 20px;
         }
     </style>
 </head>
@@ -1188,15 +782,7 @@
         // Determine the best API URL to use based on environment
         // This will be replaced with the actual API_URL by our custom HTTP server in Docker
         const API_URL = "http://localhost:8002";
-        let apiBaseUrl = API_URL;
-        
-        // Try to determine the base URL dynamically if we're in Docker
-        if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-            // If not running locally, assume API is on the same host but different port
-            apiBaseUrl = window.location.protocol + '//' + window.location.hostname + ':8002';
-            console.log('Using dynamic API URL:', apiBaseUrl);
-        }
-        
+        const apiBaseUrl = API_URL;
         let refreshIntervalId = null;
         let lastActiveCompanyTicker = '';
         
@@ -1212,11 +798,16 @@
             themeSwitch.checked = true;
         }
         
-        // Theme toggle functionality
-        function toggleDarkMode() {
-            document.documentElement.classList.toggle('dark-mode');
-            localStorage.setItem('theme', document.documentElement.classList.contains('dark-mode') ? 'dark' : 'light');
-        }
+        // Theme switch event listener
+        themeSwitch.addEventListener('change', function() {
+            if (this.checked) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+            }
+        });
         
         // Update the last updated timestamp
         function updateLastUpdated() {
@@ -2053,8 +1644,51 @@
                 window.currentCompany = data;
                 console.log('Stored company data globally:', window.currentCompany);
                 
-                // Call handleCompanyClick to properly set up the detail view and button handlers
-                handleCompanyClick(data);
+                // Show company detail section and update its content
+                const detailSection = document.getElementById('company-detail');
+                if (detailSection) {
+                    // Update the company detail view
+                    const tickerElement = document.getElementById('company-ticker');
+                    if (tickerElement) tickerElement.textContent = data.ticker;
+                    
+                    const nameElement = document.getElementById('company-name');
+                    if (nameElement) nameElement.textContent = data.name || data.ticker;
+                    
+                    const cikElement = document.getElementById('company-cik');
+                    if (cikElement) cikElement.textContent = data.cik || 'N/A';
+                    
+                    const sicElement = document.getElementById('company-sic');
+                    if (sicElement) sicElement.textContent = data.sic || 'N/A';
+                    
+                    const sicDescElement = document.getElementById('company-sic-description');
+                    if (sicDescElement) sicDescElement.textContent = data.sicDescription || 'N/A';
+                    
+                    const stateElement = document.getElementById('company-state');
+                    if (stateElement) stateElement.textContent = data.stateOfIncorporation || 'N/A';
+                    
+                    // Enable action buttons
+                    const view10kButton = document.getElementById('view-10k-button');
+                    if (view10kButton) {
+                        view10kButton.onclick = () => fetchCompany10K(data.ticker);
+                        view10kButton.classList.remove('disabled');
+                    }
+                    
+                    const viewRatiosButton = document.getElementById('view-ratios-button');
+                    if (viewRatiosButton) {
+                        viewRatiosButton.classList.remove('disabled');
+                        // Button now has onclick in HTML, no need to set it again
+                    }
+                    
+                    // Show the section
+                    detailSection.classList.remove('hidden');
+                    
+                    // Clear previous displays
+                    const filingContainer = document.getElementById('filing-container');
+                    if (filingContainer) filingContainer.classList.add('hidden');
+                    
+                    const ratiosContainer = document.getElementById('financial-ratios-container');
+                    if (ratiosContainer) ratiosContainer.classList.add('hidden');
+                }
                 
                 // Create a formatted response for the company details tab
                 let html = '<div class="success">Company details retrieved successfully!</div>';
@@ -2987,68 +2621,13 @@
                     console.log("Adding direct event listener to view-ratios-button");
                     ratiosButton.addEventListener('click', function() {
                         console.log("view-ratios-button clicked directly");
-                        console.log("Button classes:", ratiosButton.className);
-                        console.log("Company detail visibility:", document.getElementById('company-detail').className);
-                        
-                        // Debug UI State
-                        const companyDetailEl = document.getElementById('company-detail');
-                        const companyTickerEl = document.getElementById('company-ticker');
-                        const companyNameEl = document.getElementById('company-name');
-                        
-                        console.log("UI State Debug:");
-                        console.log("- company-detail:", companyDetailEl ? companyDetailEl.className : "not found");
-                        console.log("- company-ticker:", companyTickerEl ? companyTickerEl.textContent : "not found");
-                        console.log("- company-name:", companyNameEl ? companyNameEl.textContent : "not found");
-                        
-                        // Debug Global State
-                        console.log("Global Company Data:", window.currentCompany);
-                        
                         // Get company from the global variable
                         const company = window.currentCompany;
                         if (company && company.ticker) {
                             console.log("Calling fetchFinancialRatios with ticker:", company.ticker);
                             fetchFinancialRatios(company.ticker);
                         } else {
-                            console.log("No company data available in global variable, checking ticker element");
-                            if (companyTickerEl && companyTickerEl.textContent && companyTickerEl.textContent.trim() !== "") {
-                                const ticker = companyTickerEl.textContent.trim();
-                                console.log("Using ticker from UI element:", ticker);
-                                fetchFinancialRatios(ticker);
-                            } else {
-                                console.error("No ticker available for financial ratios");
-                                
-                                // Try to find any ticker in the UI as a last resort
-                                const companyTickerInput = document.getElementById('companyTicker');
-                                const factsTickerInput = document.getElementById('factsTicker');
-                                const stockTickerInput = document.getElementById('stockTicker');
-                                
-                                if (companyTickerInput && companyTickerInput.value) {
-                                    console.log("Found ticker in companyTicker input:", companyTickerInput.value);
-                                    fetchFinancialRatios(companyTickerInput.value);
-                                    return;
-                                }
-                                
-                                if (factsTickerInput && factsTickerInput.value) {
-                                    console.log("Found ticker in factsTicker input:", factsTickerInput.value);
-                                    fetchFinancialRatios(factsTickerInput.value);
-                                    return;
-                                }
-                                
-                                if (stockTickerInput && stockTickerInput.value) {
-                                    console.log("Found ticker in stockTicker input:", stockTickerInput.value);
-                                    fetchFinancialRatios(stockTickerInput.value);
-                                    return;
-                                }
-                                
-                                // Show error if no ticker can be found
-                                document.getElementById('financial-ratios-container').innerHTML = `
-                                    <div class="error-message">
-                                        <h3>Error Loading Financial Ratios</h3>
-                                        <p>No company selected. Please select a company first.</p>
-                                    </div>
-                                `;
-                                document.getElementById('financial-ratios-container').classList.remove('hidden');
-                            }
+                            console.error("No company data available in global variable");
                         }
                     });
                 } else {
@@ -3510,428 +3089,49 @@
                                 },
                                 "year": 2023
                             }
-                        }
-                    }
-                };
-                
-                displayFinancialRatios(mockData);
-                
+                        },
+                    console.error("API health check failed:", response.status, response.statusText);
+                    return false;
+                }
             } catch (error) {
-                console.error("Error in fetchFinancialRatios:", error);
-                document.getElementById('financial-ratios-container').innerHTML = `
-                    <div class="error-message">
-                        <h3>Error Loading Financial Ratios</h3>
-                        <p>${error.message}</p>
-                    </div>
-                `;
-                document.getElementById('financial-ratios-container').classList.remove('hidden');
+                console.error("API health check error:", error);
+                return false;
             }
         }
 
-        // Helper function to show notification
-        function showNotificationLegacy(title, message, type = 'info') {
-            // Create notification element if it doesn't exist
-            let notification = document.getElementById('notification');
-            if (!notification) {
-                notification = document.createElement('div');
-                notification.id = 'notification';
-                document.body.appendChild(notification);
-            }
-            
-            // Set notification content and class
-            notification.className = `notification ${type}`;
-            notification.innerHTML = `
-                <div class="notification-header">
-                    <span class="notification-title">${title}</span>
-                    <button class="notification-close" onclick="this.parentElement.parentElement.classList.add('hiding')">×</button>
-                </div>
-                <div class="notification-body">${message}</div>
-            `;
-            
-            // Show notification
-            notification.classList.add('showing');
-            
-            // Set up auto-hide
-            setTimeout(() => {
-                notification.classList.add('hiding');
-            }, 8000);
-            
-            // Handle notification hide animation end
-            notification.addEventListener('transitionend', function(e) {
-                if (notification.classList.contains('hiding')) {
-                    notification.classList.remove('showing', 'hiding');
+        // Check API health on page load
+        checkApiHealth();
+
+        // Initialize financial ratios button
+        const ratiosButton = document.getElementById('view-ratios-button');
+        if (ratiosButton) {
+            console.log("Initializing view-ratios-button on page load");
+            ratiosButton.addEventListener('click', function() {
+                console.log("view-ratios-button clicked through global event listener");
+                if (window.currentCompany && window.currentCompany.ticker) {
+                    console.log("Using ticker from global company data:", window.currentCompany.ticker);
+                    fetchFinancialRatios(window.currentCompany.ticker);
+                } else {
+                    console.log("No company data available for financial ratios");
+                    // Try to get company ticker from other sources
+                    const tickerElement = document.getElementById('company-ticker');
+                    if (tickerElement && tickerElement.textContent.trim()) {
+                        console.log("Using ticker from UI element:", tickerElement.textContent.trim());
+                        fetchFinancialRatios(tickerElement.textContent.trim());
+                    } else {
+                        // Display error
+                        document.getElementById('financial-ratios-container').innerHTML = `
+                            <div class="error-message">
+                                <h3>Error Loading Financial Ratios</h3>
+                                <p>No company selected. Please select a company first.</p>
+                            </div>
+                        `;
+                        document.getElementById('financial-ratios-container').classList.remove('hidden');
+                    }
                 }
             });
-        }
-
-        document.addEventListener("DOMContentLoaded", function() {
-            checkApiHealth();
-            
-            // Add direct event listener to view-ratios-button
-            setTimeout(() => {
-                const ratiosButton = document.getElementById('view-ratios-button');
-                if (ratiosButton) {
-                    console.log("Adding direct event listener to view-ratios-button");
-                    ratiosButton.addEventListener('click', function() {
-                        console.log("view-ratios-button clicked directly");
-                        console.log("Button classes:", ratiosButton.className);
-                        console.log("Company detail visibility:", document.getElementById('company-detail').className);
-                        
-                        // Debug UI State
-                        const companyDetailEl = document.getElementById('company-detail');
-                        const companyTickerEl = document.getElementById('company-ticker');
-                        const companyNameEl = document.getElementById('company-name');
-                        
-                        console.log("UI State Debug:");
-                        console.log("- company-detail:", companyDetailEl ? companyDetailEl.className : "not found");
-                        console.log("- company-ticker:", companyTickerEl ? companyTickerEl.textContent : "not found");
-                        console.log("- company-name:", companyNameEl ? companyNameEl.textContent : "not found");
-                        
-                        // Debug Global State
-                        console.log("Global Company Data:", window.currentCompany);
-                        
-                        // Get company from the global variable
-                        const company = window.currentCompany;
-                        if (company && company.ticker) {
-                            console.log("Calling fetchFinancialRatios with ticker:", company.ticker);
-                            fetchFinancialRatios(company.ticker);
-                        } else {
-                            console.log("No company data available in global variable, checking ticker element");
-                            if (companyTickerEl && companyTickerEl.textContent && companyTickerEl.textContent.trim() !== "") {
-                                const ticker = companyTickerEl.textContent.trim();
-                                console.log("Using ticker from UI element:", ticker);
-                                fetchFinancialRatios(ticker);
-                            } else {
-                                console.error("No ticker available for financial ratios");
-                                
-                                // Try to find any ticker in the UI as a last resort
-                                const companyTickerInput = document.getElementById('companyTicker');
-                                const factsTickerInput = document.getElementById('factsTicker');
-                                const stockTickerInput = document.getElementById('stockTicker');
-                                
-                                if (companyTickerInput && companyTickerInput.value) {
-                                    console.log("Found ticker in companyTicker input:", companyTickerInput.value);
-                                    fetchFinancialRatios(companyTickerInput.value);
-                                    return;
-                                }
-                                
-                                if (factsTickerInput && factsTickerInput.value) {
-                                    console.log("Found ticker in factsTicker input:", factsTickerInput.value);
-                                    fetchFinancialRatios(factsTickerInput.value);
-                                    return;
-                                }
-                                
-                                if (stockTickerInput && stockTickerInput.value) {
-                                    console.log("Found ticker in stockTicker input:", stockTickerInput.value);
-                                    fetchFinancialRatios(stockTickerInput.value);
-                                    return;
-                                }
-                                
-                                // Show error if no ticker can be found
-                                document.getElementById('financial-ratios-container').innerHTML = `
-                                    <div class="error-message">
-                                        <h3>Error Loading Financial Ratios</h3>
-                                        <p>No company selected. Please select a company first.</p>
-                                    </div>
-                                `;
-                                document.getElementById('financial-ratios-container').classList.remove('hidden');
-                            }
-                        }
-                    });
-                } else {
-                    console.error("view-ratios-button not found in the DOM after delay");
-                }
-            }, 1000); // Add a slight delay to ensure the DOM is fully loaded
-        });
-
-        // Notification functions
-        function showNotification(message, type = 'info', duration = 5000) {
-            const notification = document.getElementById('notification');
-            const notificationBody = notification.querySelector('.notification-body');
-            const notificationTitle = notification.querySelector('.notification-title');
-            
-            // Clear existing classes
-            notification.classList.remove('error', 'warning', 'success', 'info');
-            
-            // Set notification type
-            notification.classList.add(type);
-            
-            // Set title based on type
-            let title = 'Notification';
-            if (type === 'error') title = 'Error';
-            if (type === 'warning') title = 'Warning';
-            if (type === 'success') title = 'Success';
-            notificationTitle.textContent = title;
-            
-            // Set message
-            notificationBody.textContent = message;
-            
-            // Show notification
-            notification.classList.add('show');
-            
-            // Hide after duration
-            if (duration > 0) {
-                setTimeout(() => {
-                    notification.classList.remove('show');
-                }, duration);
-            }
-        }
-
-        // Initialize notification close button
-        function initNotification() {
-            const notification = document.getElementById('notification');
-            const closeButton = notification.querySelector('.notification-close');
-            
-            closeButton.addEventListener('click', () => {
-                notification.classList.remove('show');
-            });
-        }
-
-        // Add event listener to close button
-        document.addEventListener('DOMContentLoaded', function() {
-            // ... existing code ...
-            
-            // Setup notification close button
-            const notificationCloseBtn = document.querySelector('.notification-close');
-            if (notificationCloseBtn) {
-                notificationCloseBtn.addEventListener('click', function() {
-                    document.getElementById('notification').classList.remove('show');
-                });
-            }
-            
-            // ... existing code ...
-        });
-
-        // Function to display financial ratios data
-        function displayFinancialRatios(data) {
-            console.log("Displaying financial ratios:", data);
-            const container = document.getElementById('financial-ratios-container');
-            
-            if (!container) {
-                console.error("financial-ratios-container element not found");
-                return;
-            }
-            
-            try {
-                // Start building the HTML content
-                let html = `
-                    <div class="financial-ratios">
-                        <div class="ratios-header">
-                            <h3>Financial Ratios for ${data.name || data.ticker}</h3>
-                            <div class="ticker">${data.ticker}</div>
-                        </div>
-                        <div class="ratios-content">
-                `;
-                
-                // Add each ratio category
-                if (data.ratios) {
-                    // Liquidity Ratios
-                    if (data.ratios.liquidity_ratios) {
-                        html += `
-                            <div class="ratio-category">
-                                <h4>Liquidity Ratios</h4>
-                                <div class="ratio-grid">
-                        `;
-                        
-                        for (const [key, ratio] of Object.entries(data.ratios.liquidity_ratios)) {
-                            if (ratio.value !== null && ratio.value !== undefined) {
-                                // Determine status class based on interpretation
-                                let statusClass = "neutral";
-                                let statusIcon = "";
-                                
-                                if (ratio.interpretation) {
-                                    if (ratio.interpretation.good && ratio.value.toString().match(new RegExp(ratio.interpretation.good.replace('>', '\\>').replace('<', '\\<')))) {
-                                        statusClass = "good";
-                                        statusIcon = "✓";
-                                    } else if (ratio.interpretation.concern && ratio.value.toString().match(new RegExp(ratio.interpretation.concern.replace('>', '\\>').replace('<', '\\<')))) {
-                                        statusClass = "concern";
-                                        statusIcon = "⚠";
-                                    }
-                                }
-                                
-                                html += `
-                                    <div class="ratio-item ${statusClass}">
-                                        <div class="ratio-name">${key.replace(/_/g, ' ')}</div>
-                                        <div class="ratio-value">${statusIcon} ${ratio.value}</div>
-                                        <div class="ratio-description">${ratio.description}</div>
-                                        <div class="ratio-formula">Formula: ${ratio.formula}</div>
-                                        <div class="ratio-year">Year: ${ratio.year || 'N/A'}</div>
-                                    </div>
-                                `;
-                            }
-                        }
-                        
-                        html += `
-                                </div>
-                            </div>
-                        `;
-                    }
-                    
-                    // Solvency Ratios
-                    if (data.ratios.solvency_ratios) {
-                        html += `
-                            <div class="ratio-category">
-                                <h4>Solvency Ratios</h4>
-                                <div class="ratio-grid">
-                        `;
-                        
-                        for (const [key, ratio] of Object.entries(data.ratios.solvency_ratios)) {
-                            if (ratio.value !== null && ratio.value !== undefined) {
-                                // Determine status class based on interpretation
-                                let statusClass = "neutral";
-                                let statusIcon = "";
-                                
-                                if (ratio.interpretation) {
-                                    if (ratio.interpretation.good && ratio.value.toString().match(new RegExp(ratio.interpretation.good.replace('>', '\\>').replace('<', '\\<')))) {
-                                        statusClass = "good";
-                                        statusIcon = "✓";
-                                    } else if (ratio.interpretation.concern && ratio.value.toString().match(new RegExp(ratio.interpretation.concern.replace('>', '\\>').replace('<', '\\<')))) {
-                                        statusClass = "concern";
-                                        statusIcon = "⚠";
-                                    }
-                                }
-                                
-                                html += `
-                                    <div class="ratio-item ${statusClass}">
-                                        <div class="ratio-name">${key.replace(/_/g, ' ')}</div>
-                                        <div class="ratio-value">${statusIcon} ${ratio.value}</div>
-                                        <div class="ratio-description">${ratio.description}</div>
-                                        <div class="ratio-formula">Formula: ${ratio.formula}</div>
-                                        <div class="ratio-year">Year: ${ratio.year || 'N/A'}</div>
-                                    </div>
-                                `;
-                            }
-                        }
-                        
-                        html += `
-                                </div>
-                            </div>
-                        `;
-                    }
-                    
-                    // Profitability Ratios
-                    if (data.ratios.profitability_ratios) {
-                        html += `
-                            <div class="ratio-category">
-                                <h4>Profitability Ratios</h4>
-                                <div class="ratio-grid">
-                        `;
-                        
-                        for (const [key, ratio] of Object.entries(data.ratios.profitability_ratios)) {
-                            if (ratio.value !== null && ratio.value !== undefined) {
-                                // Determine status class based on interpretation
-                                let statusClass = "neutral";
-                                let statusIcon = "";
-                                
-                                if (ratio.interpretation) {
-                                    if (ratio.interpretation.good && ratio.value.toString().match(new RegExp(ratio.interpretation.good.replace('>', '\\>').replace('<', '\\<')))) {
-                                        statusClass = "good";
-                                        statusIcon = "✓";
-                                    } else if (ratio.interpretation.concern && ratio.value.toString().match(new RegExp(ratio.interpretation.concern.replace('>', '\\>').replace('<', '\\<')))) {
-                                        statusClass = "concern";
-                                        statusIcon = "⚠";
-                                    }
-                                }
-                                
-                                html += `
-                                    <div class="ratio-item ${statusClass}">
-                                        <div class="ratio-name">${key.replace(/_/g, ' ')}</div>
-                                        <div class="ratio-value">${statusIcon} ${ratio.value}</div>
-                                        <div class="ratio-description">${ratio.description}</div>
-                                        <div class="ratio-formula">Formula: ${ratio.formula}</div>
-                                        <div class="ratio-year">Year: ${ratio.year || 'N/A'}</div>
-                                    </div>
-                                `;
-                            }
-                        }
-                        
-                        html += `
-                                </div>
-                            </div>
-                        `;
-                    }
-                    
-                    // Valuation Ratios (if available)
-                    if (data.ratios.valuation_ratios) {
-                        html += `
-                            <div class="ratio-category">
-                                <h4>Valuation Ratios</h4>
-                                <div class="ratio-grid">
-                        `;
-                        
-                        for (const [key, ratio] of Object.entries(data.ratios.valuation_ratios)) {
-                            if (ratio.value !== null && ratio.value !== undefined) {
-                                // Determine status class based on interpretation
-                                let statusClass = "neutral";
-                                let statusIcon = "";
-                                
-                                if (ratio.interpretation) {
-                                    if (ratio.interpretation.good && ratio.value.toString().match(new RegExp(ratio.interpretation.good.replace('>', '\\>').replace('<', '\\<')))) {
-                                        statusClass = "good";
-                                        statusIcon = "✓";
-                                    } else if (ratio.interpretation.concern && ratio.value.toString().match(new RegExp(ratio.interpretation.concern.replace('>', '\\>').replace('<', '\\<')))) {
-                                        statusClass = "concern";
-                                        statusIcon = "⚠";
-                                    }
-                                }
-                                
-                                html += `
-                                    <div class="ratio-item ${statusClass}">
-                                        <div class="ratio-name">${key.replace(/_/g, ' ')}</div>
-                                        <div class="ratio-value">${statusIcon} ${ratio.value}</div>
-                                        <div class="ratio-description">${ratio.description}</div>
-                                        <div class="ratio-formula">Formula: ${ratio.formula}</div>
-                                        <div class="ratio-year">Year: ${ratio.year || 'N/A'}</div>
-                                    </div>
-                                `;
-                            }
-                        }
-                        
-                        html += `
-                                </div>
-                            </div>
-                        `;
-                    }
-                } else {
-                    html += `
-                        <div class="error-message">
-                            <h3>No Ratio Data</h3>
-                            <p>No financial ratio data available for this company.</p>
-                        </div>
-                    `;
-                }
-                
-                // Close containers
-                html += `
-                        </div>
-                    </div>
-                `;
-                
-                // Add metadata if available
-                if (data.ratios && data.ratios.metadata) {
-                    const metadata = data.ratios.metadata;
-                    html += `
-                        <div class="ratios-metadata">
-                            <div>Data Year: ${metadata.data_year || 'N/A'}</div>
-                            <div>Calculated: ${new Date(metadata.calculated_at).toLocaleString()}</div>
-                        </div>
-                    `;
-                }
-                
-                // Update the container with the HTML
-                container.innerHTML = html;
-                container.classList.remove('hidden');
-                
-            } catch (error) {
-                console.error("Error displaying financial ratios:", error);
-                container.innerHTML = `
-                    <div class="error-message">
-                        <h3>Error Loading Financial Ratios</h3>
-                        <p>${error.message}</p>
-                    </div>
-                `;
-                container.classList.remove('hidden');
-            }
+        } else {
+            console.error("view-ratios-button not found in the DOM on page load");
         }
     </script>
 
@@ -3951,28 +3151,5 @@
     </div>
 
     <!-- ... existing code ... -->
-
-    <!-- Notification component -->
-    <div id="notification">
-        <div class="notification-header">
-            <div class="notification-title">Notification</div>
-            <button class="notification-close">&times;</button>
-        </div>
-        <div class="notification-body">
-            This is a notification message.
-        </div>
-    </div>
-
-    <!-- Debug section - hidden in production -->
-    <div class="debug-section" style="margin-top: 30px; padding: 10px; font-size: 12px; color: #888; text-align: center;">
-        <div>
-            <a href="#" onclick="(async function() { try { const response = await fetch('/financial-analysis/debug'); const data = await response.json(); console.log('Debug API response:', data); alert('API debug: ' + JSON.stringify(data)); } catch(e) { console.error('Debug error:', e); alert('API debug error: ' + e.message); } return false; })()">Test Financial Ratios API</a>
-            <span style="margin: 0 10px;">|</span>
-            <a href="#" onclick="(async function() { try { showNotification('Testing notification system...', 'info'); setTimeout(() => showNotification('All systems operational', 'success'), 2000); } catch(e) { console.error('Notification error:', e); alert('Notification error: ' + e.message); } return false; })()">Test Notifications</a>
-        </div>
-        <div style="margin-top: 10px; font-style: italic;">
-            Recent fixes: SEC filing preview URLs, future date handling, notification system consistency, financial ratios API
-        </div>
-    </div>
 </body>
 </html> 

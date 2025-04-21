@@ -11,6 +11,7 @@ This project provides a dashboard for viewing and analyzing SEC filings data, wi
 * Analyzing financial metrics from 10-K and 10-Q filings
 * Viewing stock price data
 * Viewing 10-K filings for companies
+* **NEW: Financial ratio analysis and comparison**
 
 ## Running with Docker
 
@@ -68,6 +69,175 @@ docker-compose up -d
 5. Click on "View Details" for a company to see its information
 6. View 10-K filings by clicking on a company and selecting the "View 10-K Filings" button
 7. View stock price data by entering a ticker and clicking "Get Stock Data"
+8. **NEW: View financial ratios by accessing the Financial Analysis API endpoints**
+
+## Financial Ratio Analysis API
+
+The new Financial Ratio Analysis API provides powerful financial analysis capabilities:
+
+### Endpoints
+
+#### Get Financial Ratios for a Company
+
+```
+GET /financial-analysis/ratios/{ticker}
+```
+
+**Parameters:**
+- `ticker` (path): Company ticker symbol (e.g., AAPL)
+- `include_price` (query, optional): Set to `true` to include price-based ratios like P/E ratio
+
+**Example Request:**
+```bash
+curl -X GET "http://localhost:8002/financial-analysis/ratios/AAPL"
+```
+
+**Example Response:**
+```json
+{
+  "ticker": "AAPL",
+  "name": "Apple Inc.",
+  "cik": "0000320193",
+  "ratios": {
+    "liquidity_ratios": {
+      "current_ratio": {
+        "value": 1.07,
+        "description": "Measures a company's ability to pay short-term obligations",
+        "formula": "Current Assets / Current Liabilities",
+        "interpretation": {
+          "good": "> 1.5",
+          "concern": "< 1.0"
+        },
+        "year": 2023
+      },
+      "quick_ratio": {
+        "value": 0.88,
+        "description": "Measures a company's ability to pay short-term obligations with its most liquid assets",
+        "formula": "(Current Assets - Inventory) / Current Liabilities",
+        "interpretation": {
+          "good": "> 1.0",
+          "concern": "< 0.7"
+        },
+        "year": 2023
+      }
+    },
+    "solvency_ratios": {
+      "debt_to_equity": {
+        "value": 1.74,
+        "description": "Measures a company's financial leverage",
+        "formula": "Total Liabilities / Stockholders' Equity",
+        "interpretation": {
+          "good": "< 1.5",
+          "concern": "> 2.0"
+        },
+        "year": 2023
+      }
+    },
+    "profitability_ratios": {
+      "return_on_assets": {
+        "value": 28.31,
+        "description": "Measures how efficiently a company is using its assets to generate profit",
+        "formula": "(Net Income / Total Assets) * 100%",
+        "interpretation": {
+          "good": "> 5%",
+          "concern": "< 2%"
+        },
+        "year": 2023
+      },
+      "return_on_equity": {
+        "value": 78.37,
+        "description": "Measures how efficiently a company is using its equity to generate profit",
+        "formula": "(Net Income / Stockholders' Equity) * 100%",
+        "interpretation": {
+          "good": "> 15%",
+          "concern": "< 10%"
+        },
+        "year": 2023
+      },
+      "gross_margin": {
+        "value": 44.12,
+        "description": "Measures the percentage of revenue that exceeds the cost of goods sold",
+        "formula": "((Revenue - COGS) / Revenue) * 100%",
+        "interpretation": {
+          "good": "Industry dependent, higher is better",
+          "concern": "Declining over time"
+        },
+        "year": 2023
+      },
+      "net_profit_margin": {
+        "value": 25.31,
+        "description": "Measures how much net profit is generated as a percentage of revenue",
+        "formula": "(Net Income / Revenue) * 100%",
+        "interpretation": {
+          "good": "> 10%",
+          "concern": "< 5%"
+        },
+        "year": 2023
+      }
+    },
+    "metadata": {
+      "calculated_at": "2023-05-10T15:23:45.123456",
+      "data_year": 2023
+    }
+  }
+}
+```
+
+#### Compare Financial Ratios Across Companies
+
+```
+GET /financial-analysis/ratios/compare
+```
+
+**Parameters:**
+- `tickers` (query): Comma-separated list of ticker symbols to compare (e.g., AAPL,MSFT,GOOGL)
+- `ratio_types` (query, optional): Comma-separated list of ratio types to include (e.g., liquidity_ratios,profitability_ratios)
+
+**Example Request:**
+```bash
+curl -X GET "http://localhost:8002/financial-analysis/ratios/compare?tickers=AAPL,MSFT,GOOGL"
+```
+
+**Example Response:**
+```json
+{
+  "comparison": {
+    "AAPL": {
+      "name": "Apple Inc.",
+      "ratios": { /* ratio data */ }
+    },
+    "MSFT": {
+      "name": "Microsoft Corporation",
+      "ratios": { /* ratio data */ }
+    },
+    "GOOGL": {
+      "name": "Alphabet Inc.",
+      "ratios": { /* ratio data */ }
+    }
+  },
+  "tickers": ["AAPL", "MSFT", "GOOGL"]
+}
+```
+
+### Available Ratio Categories
+
+The API calculates the following financial ratios:
+
+1. **Liquidity Ratios**
+   - Current Ratio
+   - Quick Ratio
+
+2. **Solvency Ratios**
+   - Debt-to-Equity Ratio
+
+3. **Profitability Ratios**
+   - Return on Assets (ROA)
+   - Return on Equity (ROE)
+   - Gross Margin
+   - Net Profit Margin
+
+4. **Valuation Ratios** (when price data is available)
+   - Price-to-Earnings (P/E) Ratio
 
 ## Features
 
@@ -77,6 +247,7 @@ docker-compose up -d
 - [x] Direct links to SEC filings
 - [x] 10-K filings access
 - [x] Responsive design
+- [x] **Financial ratio analysis**
 
 ## Requirements
 

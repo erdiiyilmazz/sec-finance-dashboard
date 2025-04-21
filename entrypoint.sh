@@ -4,6 +4,10 @@ set -e
 # Trap SIGTERM and SIGINT
 trap "echo Received signal to terminate; kill -TERM \$API_PID \$WEB_PID 2>/dev/null; exit" SIGTERM SIGINT
 
+# Add /app to the Python path
+export PYTHONPATH="${PYTHONPATH}:/app"
+echo "Setting PYTHONPATH to: ${PYTHONPATH}"
+
 echo "Starting SEC Finance API..."
 # Export environment variables for the API
 export API_HOST=0.0.0.0

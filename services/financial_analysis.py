@@ -278,4 +278,375 @@ class FinancialAnalysisService:
             "max": np.max(values),
             "std": np.std(values),
             "count": len(values)
-        } 
+        }
+
+# Helper functions for working with financial data
+def get_latest_value(facts: Dict[str, Any], metric_name: str, 
+                    taxonomy: str = "us-gaap") -> Optional[float]:
+    """
+    Extract the latest value for a specific metric from company facts.
+    
+    Args:
+        facts: The company facts dictionary from SEC API
+        metric_name: The name of the metric to extract
+        taxonomy: The taxonomy to use (default: us-gaap)
+        
+    Returns:
+        The latest value as a float, or None if not found
+    """
+    try:
+        # Navigate to the right section of the facts dictionary
+        if not facts or 'facts' not in facts:
+            return None
+            
+        taxonomy_data = facts.get('facts', {}).get(taxonomy, {})
+        metric_data = taxonomy_data.get(metric_name, {})
+        
+        if not metric_data or 'units' not in metric_data:
+            return None
+            
+        # Most financial values are in USD
+        units = metric_data.get('units', {}).get('USD', [])
+        if not units:
+            # Try other unit types if USD not found
+            for unit_type, values in metric_data.get('units', {}).items():
+                if values:
+                    units = values
+                    break
+        
+        if not units:
+            return None
+            
+        # Find the latest value by date
+        latest_item = max(units, key=lambda x: x.get('end', '0000-00-00'))
+        return float(latest_item.get('val', 0))
+        
+    except Exception as e:
+        logger.error(f"Error extracting {metric_name}: {str(e)}")
+        return None
+
+def get_latest_year(facts: Dict[str, Any], metric_name: str, 
+                   taxonomy: str = "us-gaap") -> Optional[int]:
+    """
+    Extract the latest year for a specific metric from company facts.
+    
+    Args:
+        facts: The company facts dictionary from SEC API
+        metric_name: The name of the metric to extract
+        taxonomy: The taxonomy to use (default: us-gaap)
+        
+    Returns:
+        The latest year as an integer, or None if not found
+    """
+    try:
+        # Navigate to the right section of the facts dictionary
+        if not facts or 'facts' not in facts:
+            return None
+            
+        taxonomy_data = facts.get('facts', {}).get(taxonomy, {})
+        metric_data = taxonomy_data.get(metric_name, {})
+        
+        if not metric_data or 'units' not in metric_data:
+            return None
+            
+        # Most financial values are in USD
+        units = metric_data.get('units', {}).get('USD', [])
+        if not units:
+            # Try other unit types if USD not found
+            for unit_type, values in metric_data.get('units', {}).items():
+                if values:
+                    units = values
+                    break
+        
+        if not units:
+            return None
+            
+        # Find the latest value by date
+        latest_item = max(units, key=lambda x: x.get('end', '0000-00-00'))
+        end_date = latest_item.get('end', '')
+        
+        # Extract year from date
+        if end_date and len(end_date) >= 4:
+            return int(end_date[:4])
+        return None
+        
+    except Exception as e:
+        logger.error(f"Error extracting year for {metric_name}: {str(e)}")
+        return None
+
+# Financial ratio calculation functions
+def calculate_current_ratio(facts: Dict[str, Any]) -> Optional[float]:
+    """
+    Calculate current ratio: Current Assets / Current Liabilities
+    
+    Args:
+        facts: The company facts dictionary from SEC API
+        
+    Returns:
+        Current ratio as a float, or None if data not available
+    """
+    current_assets = get_latest_value(facts, "AssetsCurrent")
+    current_liabilities = get_latest_value(facts, "LiabilitiesCurrent")
+    
+    if current_assets is not None and current_liabilities is not None and current_liabilities > 0:
+        return round(current_assets / current_liabilities, 2)
+    return None
+
+def calculate_quick_ratio(facts: Dict[str, Any]) -> Optional[float]:
+    """
+    Calculate quick ratio: (Current Assets - Inventory) / Current Liabilities
+    
+    Args:
+        facts: The company facts dictionary from SEC API
+        
+    Returns:
+        Quick ratio as a float, or None if data not available
+    """
+    current_assets = get_latest_value(facts, "AssetsCurrent")
+    inventory = get_latest_value(facts, "InventoryNet")
+    current_liabilities = get_latest_value(facts, "LiabilitiesCurrent")
+    
+    if current_assets is not None and current_liabilities is not None and current_liabilities > 0:
+        # Use 0 as default if inventory is None
+        inventory = inventory or 0
+        return round((current_assets - inventory) / current_liabilities, 2)
+    return None
+
+def calculate_debt_to_equity_ratio(facts: Dict[str, Any]) -> Optional[float]:
+    """
+    Calculate debt to equity ratio: Total Liabilities / Stockholders Equity
+    
+    Args:
+        facts: The company facts dictionary from SEC API
+        
+    Returns:
+        Debt to equity ratio as a float, or None if data not available
+    """
+    total_liabilities = get_latest_value(facts, "Liabilities")
+    
+    # Try different possible names for stockholders equity
+    equity_options = [
+        "StockholdersEquity",
+        "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+        "StockholdersEquityAttributableToParent"
+    ]
+    
+    stockholders_equity = None
+    for option in equity_options:
+        stockholders_equity = get_latest_value(facts, option)
+        if stockholders_equity is not None:
+            break
+    
+    if total_liabilities is not None and stockholders_equity is not None and stockholders_equity > 0:
+        return round(total_liabilities / stockholders_equity, 2)
+    return None
+
+def calculate_return_on_assets(facts: Dict[str, Any]) -> Optional[float]:
+    """
+    Calculate return on assets: Net Income / Total Assets
+    
+    Args:
+        facts: The company facts dictionary from SEC API
+        
+    Returns:
+        ROA as a float, or None if data not available
+    """
+    net_income = get_latest_value(facts, "NetIncomeLoss")
+    total_assets = get_latest_value(facts, "Assets")
+    
+    if net_income is not None and total_assets is not None and total_assets > 0:
+        return round((net_income / total_assets) * 100, 2)  # Return as percentage
+    return None
+
+def calculate_return_on_equity(facts: Dict[str, Any]) -> Optional[float]:
+    """
+    Calculate return on equity: Net Income / Stockholders Equity
+    
+    Args:
+        facts: The company facts dictionary from SEC API
+        
+    Returns:
+        ROE as a float, or None if data not available
+    """
+    net_income = get_latest_value(facts, "NetIncomeLoss")
+    
+    # Try different possible names for stockholders equity
+    equity_options = [
+        "StockholdersEquity",
+        "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+        "StockholdersEquityAttributableToParent"
+    ]
+    
+    stockholders_equity = None
+    for option in equity_options:
+        stockholders_equity = get_latest_value(facts, option)
+        if stockholders_equity is not None:
+            break
+    
+    if net_income is not None and stockholders_equity is not None and stockholders_equity > 0:
+        return round((net_income / stockholders_equity) * 100, 2)  # Return as percentage
+    return None
+
+def calculate_gross_margin(facts: Dict[str, Any]) -> Optional[float]:
+    """
+    Calculate gross margin: (Revenue - Cost of Goods Sold) / Revenue
+    
+    Args:
+        facts: The company facts dictionary from SEC API
+        
+    Returns:
+        Gross margin as a percentage, or None if data not available
+    """
+    revenue = get_latest_value(facts, "Revenue")
+    cogs = get_latest_value(facts, "CostOfGoodsSold")
+    
+    if revenue is not None and cogs is not None and revenue > 0:
+        return round(((revenue - cogs) / revenue) * 100, 2)  # Return as percentage
+    return None
+
+def calculate_net_profit_margin(facts: Dict[str, Any]) -> Optional[float]:
+    """
+    Calculate net profit margin: Net Income / Revenue
+    
+    Args:
+        facts: The company facts dictionary from SEC API
+        
+    Returns:
+        Net profit margin as a percentage, or None if data not available
+    """
+    net_income = get_latest_value(facts, "NetIncomeLoss")
+    revenue = get_latest_value(facts, "Revenue")
+    
+    if net_income is not None and revenue is not None and revenue > 0:
+        return round((net_income / revenue) * 100, 2)  # Return as percentage
+    return None
+
+def calculate_price_to_earnings_ratio(facts: Dict[str, Any], current_price: float) -> Optional[float]:
+    """
+    Calculate P/E ratio: Current Stock Price / Earnings Per Share
+    
+    Args:
+        facts: The company facts dictionary from SEC API
+        current_price: Current stock price
+        
+    Returns:
+        P/E ratio as a float, or None if data not available
+    """
+    eps = get_latest_value(facts, "EarningsPerShareBasic")
+    
+    if eps is not None and eps > 0 and current_price is not None:
+        return round(current_price / eps, 2)
+    return None
+
+def calculate_all_ratios(facts: Dict[str, Any], current_price: Optional[float] = None) -> Dict[str, Any]:
+    """
+    Calculate all financial ratios for a company.
+    
+    Args:
+        facts: The company facts dictionary from SEC API
+        current_price: Current stock price (optional)
+        
+    Returns:
+        Dictionary containing all calculated ratios with their values and years
+    """
+    ratios = {
+        "liquidity_ratios": {
+            "current_ratio": {
+                "value": calculate_current_ratio(facts),
+                "description": "Measures a company's ability to pay short-term obligations",
+                "formula": "Current Assets / Current Liabilities",
+                "interpretation": {
+                    "good": "> 1.5",
+                    "concern": "< 1.0"
+                },
+                "year": get_latest_year(facts, "AssetsCurrent")
+            },
+            "quick_ratio": {
+                "value": calculate_quick_ratio(facts),
+                "description": "Measures a company's ability to pay short-term obligations with its most liquid assets",
+                "formula": "(Current Assets - Inventory) / Current Liabilities",
+                "interpretation": {
+                    "good": "> 1.0",
+                    "concern": "< 0.7"
+                },
+                "year": get_latest_year(facts, "AssetsCurrent")
+            }
+        },
+        "solvency_ratios": {
+            "debt_to_equity": {
+                "value": calculate_debt_to_equity_ratio(facts),
+                "description": "Measures a company's financial leverage",
+                "formula": "Total Liabilities / Stockholders' Equity",
+                "interpretation": {
+                    "good": "< 1.5",
+                    "concern": "> 2.0"
+                },
+                "year": get_latest_year(facts, "Liabilities")
+            }
+        },
+        "profitability_ratios": {
+            "return_on_assets": {
+                "value": calculate_return_on_assets(facts),
+                "description": "Measures how efficiently a company is using its assets to generate profit",
+                "formula": "(Net Income / Total Assets) * 100%",
+                "interpretation": {
+                    "good": "> 5%",
+                    "concern": "< 2%"
+                },
+                "year": get_latest_year(facts, "Assets")
+            },
+            "return_on_equity": {
+                "value": calculate_return_on_equity(facts),
+                "description": "Measures how efficiently a company is using its equity to generate profit",
+                "formula": "(Net Income / Stockholders' Equity) * 100%",
+                "interpretation": {
+                    "good": "> 15%",
+                    "concern": "< 10%"
+                },
+                "year": get_latest_year(facts, "StockholdersEquity")
+            },
+            "gross_margin": {
+                "value": calculate_gross_margin(facts),
+                "description": "Measures the percentage of revenue that exceeds the cost of goods sold",
+                "formula": "((Revenue - COGS) / Revenue) * 100%",
+                "interpretation": {
+                    "good": "Industry dependent, higher is better",
+                    "concern": "Declining over time"
+                },
+                "year": get_latest_year(facts, "Revenue")
+            },
+            "net_profit_margin": {
+                "value": calculate_net_profit_margin(facts),
+                "description": "Measures how much net profit is generated as a percentage of revenue",
+                "formula": "(Net Income / Revenue) * 100%",
+                "interpretation": {
+                    "good": "> 10%",
+                    "concern": "< 5%"
+                },
+                "year": get_latest_year(facts, "Revenue")
+            }
+        }
+    }
+    
+    # Add P/E ratio if current price is provided
+    if current_price is not None:
+        ratios["valuation_ratios"] = {
+            "price_to_earnings": {
+                "value": calculate_price_to_earnings_ratio(facts, current_price),
+                "description": "Measures the current share price relative to earnings per share",
+                "formula": "Current Stock Price / Earnings Per Share",
+                "interpretation": {
+                    "good": "Industry dependent, 10-20 is typical",
+                    "concern": "> 30 may indicate overvaluation"
+                },
+                "year": get_latest_year(facts, "EarningsPerShareBasic")
+            }
+        }
+    
+    # Add metadata
+    ratios["metadata"] = {
+        "calculated_at": datetime.now().isoformat(),
+        "data_year": get_latest_year(facts, "Revenue") or get_latest_year(facts, "Assets")
+    }
+    
+    return ratios 
