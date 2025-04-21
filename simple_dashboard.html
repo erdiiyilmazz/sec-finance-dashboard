@@ -877,15 +877,15 @@
         /* Financial Ratios Styling */
         .financial-ratios {
             margin: 20px 0;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 10px;
             overflow: hidden;
             background-color: var(--card-bg);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         
         .ratios-header {
             background-color: var(--header-bg);
-            padding: 15px 20px;
+            padding: 20px 25px;
             border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
@@ -895,113 +895,231 @@
         .ratios-header h3 {
             margin: 0;
             color: var(--heading-color);
+            font-size: 1.6rem;
+            font-weight: 600;
         }
         
         .ratios-header .ticker {
-            font-size: 1.2em;
+            font-size: 1.4rem;
             font-weight: bold;
             color: var(--primary-color);
-            padding: 5px 10px;
-            border-radius: 4px;
+            padding: 8px 15px;
+            border-radius: 6px;
             background-color: rgba(var(--primary-rgb), 0.1);
+            letter-spacing: 0.5px;
         }
         
         .ratios-content {
-            padding: 20px;
+            padding: 25px;
         }
         
         .ratio-category {
-            margin-bottom: 25px;
+            margin-bottom: 35px;
         }
         
         .ratio-category h4 {
             margin-top: 0;
-            margin-bottom: 15px;
-            padding-bottom: 8px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
             border-bottom: 1px solid var(--border-color);
             color: var(--heading-color);
+            font-size: 1.3rem;
+            font-weight: 600;
         }
         
         .ratio-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
         }
         
         .ratio-item {
-            padding: 15px;
-            border-radius: 6px;
+            padding: 20px;
+            border-radius: 8px;
             background-color: var(--bg-color);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            transition: all 0.2s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
         }
         
         .ratio-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
+        }
+        
+        .ratio-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background-color: #2196f3;
+        }
+        
+        .ratio-item.good::before {
+            background-color: #4caf50;
+        }
+        
+        .ratio-item.concern::before {
+            background-color: #ff9800;
         }
         
         .ratio-name {
-            font-weight: bold;
-            font-size: 1.1em;
-            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
             color: var(--heading-color);
             text-transform: capitalize;
+            border-bottom: 1px dotted rgba(var(--text-rgb), 0.2);
+            padding-bottom: 8px;
         }
         
         .ratio-value {
-            font-size: 1.5em;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        
-        .ratio-description {
-            color: var(--text-muted);
-            margin-bottom: 8px;
-            font-size: 0.9em;
-        }
-        
-        .ratio-formula {
-            font-family: monospace;
-            background-color: rgba(0, 0, 0, 0.05);
-            padding: 5px 8px;
-            border-radius: 4px;
-            margin-bottom: 8px;
-            font-size: 0.9em;
-        }
-        
-        .ratio-year {
-            font-size: 0.8em;
-            color: var(--text-muted);
-        }
-        
-        /* Status indicators */
-        .ratio-item.good {
-            border-left: 4px solid #4caf50;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #2196f3;
         }
         
         .ratio-item.good .ratio-value {
             color: #4caf50;
         }
         
-        .ratio-item.concern {
-            border-left: 4px solid #ff9800;
-        }
-        
         .ratio-item.concern .ratio-value {
             color: #ff9800;
         }
         
-        .ratio-item.neutral {
-            border-left: 4px solid #2196f3;
+        .ratio-description {
+            color: var(--text-color);
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .ratio-formula {
+            font-family: monospace;
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 10px 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            color: var(--code-color, var(--text-color));
+        }
+        
+        .ratio-year {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: auto;
+            text-align: right;
+            font-style: italic;
         }
         
         .ratios-metadata {
             text-align: right;
-            font-size: 0.8em;
+            font-size: 0.85rem;
             color: var(--text-muted);
-            margin-top: 10px;
-            padding: 0 20px 20px;
+            margin-top: 20px;
+            padding: 0 25px 25px;
+            font-style: italic;
+        }
+        
+        /* Dark theme specific adjustments */
+        [data-theme="dark"] .ratio-formula {
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+        
+        [data-theme="dark"] .ratio-item {
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+        
+        /* Company Detail Styling */
+        #company-detail {
+            margin: 20px 0;
+            background-color: rgba(var(--bg-rgb), 0.3);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .company-header {
+            padding: 20px;
+        }
+        
+        .company-header h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: var(--heading-color);
+            font-size: 1.4rem;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        
+        .company-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 12px;
+        }
+        
+        .info-item {
+            margin-bottom: 8px;
+            padding: 10px 12px;
+            background-color: rgba(var(--bg-rgb), 0.6);
+            border-radius: 6px;
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .info-item label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+        
+        .info-item span {
+            display: block;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+        
+        .actions {
+            padding: 15px 20px;
+            background-color: rgba(var(--bg-rgb), 0.5);
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .action-button {
+            padding: 10px 16px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .action-button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .action-button.disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        [data-theme="dark"] .action-button.disabled {
+            background-color: #555;
         }
     </style>
 </head>
@@ -1097,7 +1215,51 @@
                 <input type="text" id="companyTicker" placeholder="e.g., AAPL">
             </div>
             <button id="getCompany">Get Company Details</button>
-            <div id="companyDetails" class="result"></div>
+            <div id="companyDetails" class="result">
+                <!-- Company Detail Section -->
+                <div id="company-detail" class="section hidden">
+                    <div class="company-header">
+                        <h3>Company Information</h3>
+                        <div class="company-info">
+                            <div class="info-item">
+                                <label>Ticker:</label>
+                                <span id="company-ticker"></span>
+                            </div>
+                            <div class="info-item">
+                                <label>Name:</label>
+                                <span id="company-name"></span>
+                            </div>
+                            <div class="info-item">
+                                <label>CIK:</label>
+                                <span id="company-cik"></span>
+                            </div>
+                            <div class="info-item">
+                                <label>SIC Code:</label>
+                                <span id="company-sic"></span>
+                            </div>
+                            <div class="info-item">
+                                <label>Industry:</label>
+                                <span id="company-industry"></span>
+                            </div>
+                            <div class="info-item">
+                                <label>State of Incorporation:</label>
+                                <span id="company-state"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="actions">
+                        <button id="view-10k-button" class="action-button">View 10-K Filings</button>
+                        <button id="view-ratios-button" class="action-button">View Financial Ratios</button>
+                    </div>
+                    
+                    <!-- Filing Container -->
+                    <div id="filing-container" class="hidden"></div>
+                    
+                    <!-- Financial Ratios Container -->
+                    <div id="financial-ratios-container" class="hidden"></div>
+                </div>
+            </div>
         </div>
         
         <div class="card">
@@ -2030,14 +2192,33 @@
         async function getCompanyDetails() {
             const ticker = document.getElementById('companyTicker').value.trim().toUpperCase();
             const resultDiv = document.getElementById('companyDetails');
+            const detailSection = document.getElementById('company-detail');
             
             if (!ticker) {
                 resultDiv.innerHTML = '<span class="error">Please enter a ticker symbol</span>';
+                // Hide the detail section if no ticker
+                if (detailSection) detailSection.classList.add('hidden');
                 return;
             }
             
             lastActiveCompanyTicker = ticker;
-            resultDiv.innerHTML = `<div class="loading-spinner"></div><p>Fetching details for ${ticker}...</p>`;
+            
+            // Show loading message in the result div, but preserve the company-detail section
+            const loadingHtml = `<div class="loading-spinner"></div><p>Fetching details for ${ticker}...</p>`;
+            
+            // Check if company-detail exists
+            if (detailSection) {
+                // Keep the company-detail section but hide it during loading
+                detailSection.classList.add('hidden');
+                // Add loading message before the company-detail section
+                const tempDiv = document.createElement('div');
+                tempDiv.className = 'loading-container';
+                tempDiv.innerHTML = loadingHtml;
+                resultDiv.insertBefore(tempDiv, detailSection);
+            } else {
+                // If company-detail doesn't exist for some reason, just show loading
+                resultDiv.innerHTML = loadingHtml;
+            }
             
             try {
                 const response = await fetch(`${API_URL}/companies/${ticker}`);
@@ -2056,56 +2237,45 @@
                 // Call handleCompanyClick to properly set up the detail view and button handlers
                 handleCompanyClick(data);
                 
-                // Create a formatted response for the company details tab
-                let html = '<div class="success">Company details retrieved successfully!</div>';
-                html += '<div class="info-card">';
-                html += '<div class="info-header">';
-                html += `<h3>${data.name || data.ticker}</h3>`;
-                html += `<div class="info-subtitle">Ticker: ${data.ticker} | CIK: ${data.cik || 'N/A'}</div>`;
-                html += '</div>';
-                
-                // Add company details
-                html += '<div class="details-grid">';
-                if (data.sic) {
-                    html += `<div class="detail-field">
-                        <div class="field-label">SIC Code</div>
-                        <div class="field-value">${data.sic} - ${data.sicDescription || 'N/A'}</div>
-                    </div>`;
+                // Remove loading message
+                const loadingContainer = resultDiv.querySelector('.loading-container');
+                if (loadingContainer) {
+                    resultDiv.removeChild(loadingContainer);
                 }
-                if (data.stateOfIncorporation) {
-                    html += `<div class="detail-field">
-                        <div class="field-label">State of Incorporation</div>
-                        <div class="field-value">${data.stateOfIncorporation}</div>
-                    </div>`;
-                }
-                if (data.fiscalYearEnd) {
-                    html += `<div class="detail-field">
-                        <div class="field-label">Fiscal Year End</div>
-                        <div class="field-value">${data.fiscalYearEnd}</div>
-                    </div>`;
-                }
-                if (data.website) {
-                    html += `<div class="detail-field">
-                        <div class="field-label">Website</div>
-                        <div class="field-value"><a href="${data.website}" target="_blank">${data.website}</a></div>
-                    </div>`;
-                }
-                html += '</div>';
                 
-                // Add action buttons
-                html += '<div class="info-actions">';
-                html += `<button class="action-button primary" onclick="getCompanyFacts()">View Financial Facts</button>`;
-                html += `<button class="action-button" onclick="getCompany10KFilings()">View 10-K Filings</button>`;
-                html += `<button class="action-button" onclick="getStockPrices()">View Stock Data</button>`;
-                html += '</div>';
+                // Add success message above the company-detail section
+                const successDiv = document.createElement('div');
+                successDiv.className = 'success';
+                successDiv.textContent = 'Company details retrieved successfully!';
+                resultDiv.insertBefore(successDiv, detailSection);
                 
-                html += '</div>';
+                // Show the company detail section
+                detailSection.classList.remove('hidden');
                 
-                resultDiv.innerHTML = html;
                 updateLastUpdated();
             } catch (error) {
                 console.error('Error in getCompanyDetails:', error);
-                resultDiv.innerHTML = `<span class="error">Error fetching company details: ${error.message}</span>`;
+                
+                // Show error but preserve company-detail section
+                if (detailSection) {
+                    // Remove loading message
+                    const loadingContainer = resultDiv.querySelector('.loading-container');
+                    if (loadingContainer) {
+                        resultDiv.removeChild(loadingContainer);
+                    }
+                    
+                    // Add error message above company-detail
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'error';
+                    errorDiv.textContent = `Error fetching company details: ${error.message}`;
+                    resultDiv.insertBefore(errorDiv, detailSection);
+                    
+                    // Keep the company-detail hidden
+                    detailSection.classList.add('hidden');
+                } else {
+                    // If no company-detail for some reason, show error message
+                    resultDiv.innerHTML = `<span class="error">Error fetching company details: ${error.message}</span>`;
+                }
             }
         }
         
@@ -3325,32 +3495,172 @@
 
         // Function to handle the company table click
         function handleCompanyClick(company) {
-            // Store company data globally for direct button access
+            console.log('Handling company click for:', company);
+            
+            if (!company) {
+                console.error('No company data provided to handleCompanyClick');
+                return;
+            }
+            
+            // Show the company detail view
+            const detailView = document.getElementById('company-detail');
+            if (!detailView) {
+                console.error('Company detail view element not found');
+                // Try to locate the companyDetails container to add the detail view
+                const companyDetailsContainer = document.getElementById('companyDetails');
+                if (companyDetailsContainer) {
+                    // Create the detail view if it doesn't exist
+                    const newDetailView = document.createElement('div');
+                    newDetailView.id = 'company-detail';
+                    newDetailView.className = 'section';
+                    
+                    newDetailView.innerHTML = `
+                        <div class="company-header">
+                            <h3>Company Information</h3>
+                            <div class="company-info">
+                                <div class="info-item">
+                                    <label>Ticker:</label>
+                                    <span id="company-ticker"></span>
+                                </div>
+                                <div class="info-item">
+                                    <label>Name:</label>
+                                    <span id="company-name"></span>
+                                </div>
+                                <div class="info-item">
+                                    <label>CIK:</label>
+                                    <span id="company-cik"></span>
+                                </div>
+                                <div class="info-item">
+                                    <label>SIC Code:</label>
+                                    <span id="company-sic"></span>
+                                </div>
+                                <div class="info-item">
+                                    <label>Industry:</label>
+                                    <span id="company-industry"></span>
+                                </div>
+                                <div class="info-item">
+                                    <label>State of Incorporation:</label>
+                                    <span id="company-state"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="actions">
+                            <button id="view-10k-button" class="action-button">View 10-K Filings</button>
+                            <button id="view-ratios-button" class="action-button">View Financial Ratios</button>
+                        </div>
+                        
+                        <!-- Filing Container -->
+                        <div id="filing-container" class="hidden"></div>
+                        
+                        <!-- Financial Ratios Container -->
+                        <div id="financial-ratios-container" class="hidden"></div>
+                    `;
+                    
+                    companyDetailsContainer.innerHTML = '';
+                    companyDetailsContainer.appendChild(newDetailView);
+                    console.log('Created new company detail view');
+                    
+                    // Now get the newly created element
+                    const createdDetailView = document.getElementById('company-detail');
+                    if (createdDetailView) {
+                        createdDetailView.classList.remove('hidden');
+                    }
+                } else {
+                    console.error('Both company-detail and companyDetails elements not found');
+                    return;
+                }
+            } else {
+                detailView.classList.remove('hidden');
+            }
+            
+            // Update the elements with company information
+            const elements = {
+                'company-ticker': company.ticker,
+                'company-name': company.name || 'N/A',
+                'company-cik': company.cik || 'N/A',
+                'company-sic': company.sic ? `${company.sic} - ${company.sicDescription || 'N/A'}` : 'N/A',
+                'company-industry': company.industry || company.sicDescription || 'N/A',
+                'company-state': company.stateOfIncorporation || 'N/A'
+            };
+            
+            for (const [id, value] of Object.entries(elements)) {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = value;
+                } else {
+                    console.warn(`Element with id ${id} not found`);
+                }
+            }
+            
+            // Enable the ratios button - IMPORTANT: This is where we set up the button
+            console.log("Setting up the view-ratios-button...");
+            const ratiosButton = document.getElementById('view-ratios-button');
+            console.log("view-ratios-button element:", ratiosButton);
+            
+            if (ratiosButton) {
+                ratiosButton.classList.remove('disabled');
+                console.log("Removed 'disabled' class from button");
+                
+                // Add or update the onclick handler
+                ratiosButton.onclick = function() {
+                    console.log("view-ratios-button clicked!");
+                    fetchFinancialRatios(company.ticker);
+                };
+                console.log('Enabled ratios button with onclick handler');
+                
+                // Add a direct event listener as well
+                ratiosButton.addEventListener('click', function() {
+                    console.log("view-ratios-button click event fired");
+                    fetchFinancialRatios(company.ticker);
+                });
+                console.log('Added click event listener to ratios button');
+                
+                // Make sure the button is visible in the DOM
+                ratiosButton.style.display = 'inline-block';
+                ratiosButton.style.visibility = 'visible';
+                console.log("Set button visibility styles");
+            } else {
+                console.error('Ratios button not found! This is a critical issue.');
+                
+                // Try to find the actions container and add the button if needed
+                const actionsContainer = document.querySelector('#company-detail .actions');
+                if (actionsContainer) {
+                    console.log("Found actions container, creating ratio button directly");
+                    const newRatiosButton = document.createElement('button');
+                    newRatiosButton.id = 'view-ratios-button';
+                    newRatiosButton.className = 'action-button';
+                    newRatiosButton.textContent = 'View Financial Ratios';
+                    newRatiosButton.onclick = function() {
+                        console.log("New view-ratios-button clicked!");
+                        fetchFinancialRatios(company.ticker);
+                    };
+                    actionsContainer.appendChild(newRatiosButton);
+                    console.log("Added new ratio button to actions container");
+                } else {
+                    console.error("Could not find actions container to add ratio button");
+                }
+            }
+            
+            // Check if the filings button needs to be updated
+            const filingsButton = document.getElementById('view-10k-button');
+            if (filingsButton) {
+                filingsButton.classList.remove('disabled');
+                
+                // Add or update the onclick handler
+                filingsButton.onclick = function() {
+                    document.getElementById('filingsTicker').value = company.ticker;
+                    getCompany10KFilings();
+                };
+                console.log('Enabled filings button');
+            } else {
+                console.warn('Filings button not found');
+            }
+            
+            // Store the company data
+            selectedCompany = company;
             window.currentCompany = company;
-            console.log("Company data stored globally:", company);
-            
-            // Show the detail view
-            document.getElementById('company-detail').classList.remove('hidden');
-            
-            // Update the company detail view
-            document.getElementById('company-ticker').textContent = company.ticker;
-            document.getElementById('company-name').textContent = company.name;
-            document.getElementById('company-cik').textContent = company.cik;
-            document.getElementById('company-sic').textContent = company.sic;
-            document.getElementById('company-sic-description').textContent = company.sicDescription;
-            document.getElementById('company-state').textContent = company.stateOfIncorporation;
-            
-            // Enable action buttons for this company
-            document.getElementById('view-10k-button').onclick = () => fetchCompany10K(company.ticker);
-            document.getElementById('view-10k-button').classList.remove('disabled');
-            
-            // Enable financial ratios button
-            document.getElementById('view-ratios-button').onclick = () => fetchFinancialRatios(company.ticker);
-            document.getElementById('view-ratios-button').classList.remove('disabled');
-            
-            // Clear previous displays
-            document.getElementById('filing-container').classList.add('hidden');
-            document.getElementById('financial-ratios-container').classList.add('hidden');
+            console.log('Selected company updated:', selectedCompany);
         }
 
         // Function to fetch financial ratios
@@ -3358,6 +3668,23 @@
             try {
                 console.log("fetchFinancialRatios called with ticker:", ticker);
                 console.log("Current company data:", window.currentCompany);
+                
+                // Make sure financial-ratios-container exists
+                let container = document.getElementById('financial-ratios-container');
+                if (!container) {
+                    console.error("financial-ratios-container not found, will try to create it");
+                    const detailView = document.getElementById('company-detail');
+                    if (detailView) {
+                        container = document.createElement('div');
+                        container.id = 'financial-ratios-container';
+                        container.className = 'hidden';
+                        detailView.appendChild(container);
+                        console.log("Created financial-ratios-container");
+                    } else {
+                        console.error("Cannot create financial-ratios-container, company-detail not found");
+                        return;
+                    }
+                }
                 
                 // If no ticker provided but we have current company, use that
                 if (!ticker && window.currentCompany && window.currentCompany.ticker) {
@@ -3377,12 +3704,13 @@
                 // If no ticker available, show error and return
                 if (!ticker) {
                     console.error("No ticker available for financial ratios");
-                    document.getElementById('financial-ratios-container').innerHTML = `
+                    container.innerHTML = `
                         <div class="error-message">
                             <h3>Error Loading Financial Ratios</h3>
                             <p>No company selected. Please select a company first.</p>
                         </div>
                     `;
+                    container.classList.remove('hidden');
                     return;
                 }
                 
@@ -3390,8 +3718,8 @@
                 console.log("apiBaseUrl:", apiBaseUrl);
                 
                 // Show loading state
-                document.getElementById('financial-ratios-container').innerHTML = '<div class="loading">Loading financial ratios...</div>';
-                document.getElementById('financial-ratios-container').classList.remove('hidden');
+                container.innerHTML = '<div class="loading">Loading financial ratios...</div>';
+                container.classList.remove('hidden');
                 
                 const filingContainer = document.getElementById('filing-container');
                 if (filingContainer) filingContainer.classList.add('hidden');
@@ -3489,42 +3817,24 @@
                                     "concern": "< 10%"
                                 },
                                 "year": 2023
-                            },
-                            "gross_margin": {
-                                "value": 44.12,
-                                "description": "Measures the percentage of revenue that exceeds the cost of goods sold",
-                                "formula": "((Revenue - COGS) / Revenue) * 100%",
-                                "interpretation": {
-                                    "good": "Industry dependent, higher is better",
-                                    "concern": "Declining over time"
-                                },
-                                "year": 2023
-                            },
-                            "net_profit_margin": {
-                                "value": 25.31,
-                                "description": "Measures how much net profit is generated as a percentage of revenue",
-                                "formula": "(Net Income / Revenue) * 100%",
-                                "interpretation": {
-                                    "good": "> 10%",
-                                    "concern": "< 5%"
-                                },
-                                "year": 2023
                             }
                         }
                     }
                 };
                 
                 displayFinancialRatios(mockData);
-                
             } catch (error) {
                 console.error("Error in fetchFinancialRatios:", error);
-                document.getElementById('financial-ratios-container').innerHTML = `
-                    <div class="error-message">
-                        <h3>Error Loading Financial Ratios</h3>
-                        <p>${error.message}</p>
-                    </div>
-                `;
-                document.getElementById('financial-ratios-container').classList.remove('hidden');
+                const container = document.getElementById('financial-ratios-container');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="error-message">
+                            <h3>Error Loading Financial Ratios</h3>
+                            <p>${error.message}</p>
+                        </div>
+                    `;
+                    container.classList.remove('hidden');
+                }
             }
         }
 
@@ -3713,6 +4023,33 @@
             }
             
             try {
+                // Helper function to format ratio values nicely
+                const formatRatioValue = (value, isPercentage = false) => {
+                    if (value === null || value === undefined) return 'N/A';
+                    
+                    // If it's a percentage (like ROA, ROE)
+                    if (isPercentage || String(value).includes('.') && value > 1 && value <= 100) {
+                        return value.toFixed(2) + '%';
+                    }
+                    
+                    // If it's a ratio (like current ratio)
+                    if (value < 10) {
+                        return value.toFixed(2);
+                    }
+                    
+                    // Otherwise just round it
+                    return value.toFixed(0);
+                };
+                
+                // Helper to check if a ratio should be treated as a percentage
+                const isPercentageRatio = (ratioName) => {
+                    const percentageRatios = [
+                        'return_on_assets', 'return_on_equity', 'gross_margin', 
+                        'net_profit_margin', 'operating_margin', 'price_to_earnings'
+                    ];
+                    return percentageRatios.includes(ratioName.toLowerCase());
+                };
+                
                 // Start building the HTML content
                 let html = `
                     <div class="financial-ratios">
@@ -3738,21 +4075,45 @@
                                 // Determine status class based on interpretation
                                 let statusClass = "neutral";
                                 let statusIcon = "";
+                                let statusText = "";
                                 
                                 if (ratio.interpretation) {
-                                    if (ratio.interpretation.good && ratio.value.toString().match(new RegExp(ratio.interpretation.good.replace('>', '\\>').replace('<', '\\<')))) {
-                                        statusClass = "good";
-                                        statusIcon = "✓";
-                                    } else if (ratio.interpretation.concern && ratio.value.toString().match(new RegExp(ratio.interpretation.concern.replace('>', '\\>').replace('<', '\\<')))) {
-                                        statusClass = "concern";
-                                        statusIcon = "⚠";
+                                    // Check good condition
+                                    if (ratio.interpretation.good) {
+                                        const goodCondition = ratio.interpretation.good;
+                                        if (goodCondition.includes('>') && ratio.value > parseFloat(goodCondition.replace('>', ''))) {
+                                            statusClass = "good";
+                                            statusIcon = "✓";
+                                            statusText = "Good";
+                                        } else if (goodCondition.includes('<') && ratio.value < parseFloat(goodCondition.replace('<', ''))) {
+                                            statusClass = "good";
+                                            statusIcon = "✓";
+                                            statusText = "Good";
+                                        }
+                                    }
+                                    
+                                    // Check concern condition
+                                    if (ratio.interpretation.concern) {
+                                        const concernCondition = ratio.interpretation.concern;
+                                        if (concernCondition.includes('>') && ratio.value > parseFloat(concernCondition.replace('>', ''))) {
+                                            statusClass = "concern";
+                                            statusIcon = "⚠";
+                                            statusText = "Concern";
+                                        } else if (concernCondition.includes('<') && ratio.value < parseFloat(concernCondition.replace('<', ''))) {
+                                            statusClass = "concern";
+                                            statusIcon = "⚠";
+                                            statusText = "Concern";
+                                        }
                                     }
                                 }
+                                
+                                const isPercent = isPercentageRatio(key);
+                                const formattedValue = formatRatioValue(ratio.value, isPercent);
                                 
                                 html += `
                                     <div class="ratio-item ${statusClass}">
                                         <div class="ratio-name">${key.replace(/_/g, ' ')}</div>
-                                        <div class="ratio-value">${statusIcon} ${ratio.value}</div>
+                                        <div class="ratio-value">${formattedValue} ${statusIcon}</div>
                                         <div class="ratio-description">${ratio.description}</div>
                                         <div class="ratio-formula">Formula: ${ratio.formula}</div>
                                         <div class="ratio-year">Year: ${ratio.year || 'N/A'}</div>
@@ -3780,21 +4141,45 @@
                                 // Determine status class based on interpretation
                                 let statusClass = "neutral";
                                 let statusIcon = "";
+                                let statusText = "";
                                 
                                 if (ratio.interpretation) {
-                                    if (ratio.interpretation.good && ratio.value.toString().match(new RegExp(ratio.interpretation.good.replace('>', '\\>').replace('<', '\\<')))) {
-                                        statusClass = "good";
-                                        statusIcon = "✓";
-                                    } else if (ratio.interpretation.concern && ratio.value.toString().match(new RegExp(ratio.interpretation.concern.replace('>', '\\>').replace('<', '\\<')))) {
-                                        statusClass = "concern";
-                                        statusIcon = "⚠";
+                                    // Check good condition
+                                    if (ratio.interpretation.good) {
+                                        const goodCondition = ratio.interpretation.good;
+                                        if (goodCondition.includes('>') && ratio.value > parseFloat(goodCondition.replace('>', ''))) {
+                                            statusClass = "good";
+                                            statusIcon = "✓";
+                                            statusText = "Good";
+                                        } else if (goodCondition.includes('<') && ratio.value < parseFloat(goodCondition.replace('<', ''))) {
+                                            statusClass = "good";
+                                            statusIcon = "✓";
+                                            statusText = "Good";
+                                        }
+                                    }
+                                    
+                                    // Check concern condition
+                                    if (ratio.interpretation.concern) {
+                                        const concernCondition = ratio.interpretation.concern;
+                                        if (concernCondition.includes('>') && ratio.value > parseFloat(concernCondition.replace('>', ''))) {
+                                            statusClass = "concern";
+                                            statusIcon = "⚠";
+                                            statusText = "Concern";
+                                        } else if (concernCondition.includes('<') && ratio.value < parseFloat(concernCondition.replace('<', ''))) {
+                                            statusClass = "concern";
+                                            statusIcon = "⚠";
+                                            statusText = "Concern";
+                                        }
                                     }
                                 }
+                                
+                                const isPercent = isPercentageRatio(key);
+                                const formattedValue = formatRatioValue(ratio.value, isPercent);
                                 
                                 html += `
                                     <div class="ratio-item ${statusClass}">
                                         <div class="ratio-name">${key.replace(/_/g, ' ')}</div>
-                                        <div class="ratio-value">${statusIcon} ${ratio.value}</div>
+                                        <div class="ratio-value">${formattedValue} ${statusIcon}</div>
                                         <div class="ratio-description">${ratio.description}</div>
                                         <div class="ratio-formula">Formula: ${ratio.formula}</div>
                                         <div class="ratio-year">Year: ${ratio.year || 'N/A'}</div>
@@ -3822,21 +4207,45 @@
                                 // Determine status class based on interpretation
                                 let statusClass = "neutral";
                                 let statusIcon = "";
+                                let statusText = "";
                                 
                                 if (ratio.interpretation) {
-                                    if (ratio.interpretation.good && ratio.value.toString().match(new RegExp(ratio.interpretation.good.replace('>', '\\>').replace('<', '\\<')))) {
-                                        statusClass = "good";
-                                        statusIcon = "✓";
-                                    } else if (ratio.interpretation.concern && ratio.value.toString().match(new RegExp(ratio.interpretation.concern.replace('>', '\\>').replace('<', '\\<')))) {
-                                        statusClass = "concern";
-                                        statusIcon = "⚠";
+                                    // Check good condition
+                                    if (ratio.interpretation.good) {
+                                        const goodCondition = ratio.interpretation.good;
+                                        if (goodCondition.includes('>') && ratio.value > parseFloat(goodCondition.replace('>', ''))) {
+                                            statusClass = "good";
+                                            statusIcon = "✓";
+                                            statusText = "Good";
+                                        } else if (goodCondition.includes('<') && ratio.value < parseFloat(goodCondition.replace('<', ''))) {
+                                            statusClass = "good";
+                                            statusIcon = "✓";
+                                            statusText = "Good";
+                                        }
+                                    }
+                                    
+                                    // Check concern condition
+                                    if (ratio.interpretation.concern) {
+                                        const concernCondition = ratio.interpretation.concern;
+                                        if (concernCondition.includes('>') && ratio.value > parseFloat(concernCondition.replace('>', ''))) {
+                                            statusClass = "concern";
+                                            statusIcon = "⚠";
+                                            statusText = "Concern";
+                                        } else if (concernCondition.includes('<') && ratio.value < parseFloat(concernCondition.replace('<', ''))) {
+                                            statusClass = "concern";
+                                            statusIcon = "⚠";
+                                            statusText = "Concern";
+                                        }
                                     }
                                 }
+                                
+                                const isPercent = isPercentageRatio(key);
+                                const formattedValue = formatRatioValue(ratio.value, isPercent);
                                 
                                 html += `
                                     <div class="ratio-item ${statusClass}">
                                         <div class="ratio-name">${key.replace(/_/g, ' ')}</div>
-                                        <div class="ratio-value">${statusIcon} ${ratio.value}</div>
+                                        <div class="ratio-value">${formattedValue} ${statusIcon}</div>
                                         <div class="ratio-description">${ratio.description}</div>
                                         <div class="ratio-formula">Formula: ${ratio.formula}</div>
                                         <div class="ratio-year">Year: ${ratio.year || 'N/A'}</div>
@@ -3864,21 +4273,45 @@
                                 // Determine status class based on interpretation
                                 let statusClass = "neutral";
                                 let statusIcon = "";
+                                let statusText = "";
                                 
                                 if (ratio.interpretation) {
-                                    if (ratio.interpretation.good && ratio.value.toString().match(new RegExp(ratio.interpretation.good.replace('>', '\\>').replace('<', '\\<')))) {
-                                        statusClass = "good";
-                                        statusIcon = "✓";
-                                    } else if (ratio.interpretation.concern && ratio.value.toString().match(new RegExp(ratio.interpretation.concern.replace('>', '\\>').replace('<', '\\<')))) {
-                                        statusClass = "concern";
-                                        statusIcon = "⚠";
+                                    // Check good condition
+                                    if (ratio.interpretation.good) {
+                                        const goodCondition = ratio.interpretation.good;
+                                        if (goodCondition.includes('>') && ratio.value > parseFloat(goodCondition.replace('>', ''))) {
+                                            statusClass = "good";
+                                            statusIcon = "✓";
+                                            statusText = "Good";
+                                        } else if (goodCondition.includes('<') && ratio.value < parseFloat(goodCondition.replace('<', ''))) {
+                                            statusClass = "good";
+                                            statusIcon = "✓";
+                                            statusText = "Good";
+                                        }
+                                    }
+                                    
+                                    // Check concern condition
+                                    if (ratio.interpretation.concern) {
+                                        const concernCondition = ratio.interpretation.concern;
+                                        if (concernCondition.includes('>') && ratio.value > parseFloat(concernCondition.replace('>', ''))) {
+                                            statusClass = "concern";
+                                            statusIcon = "⚠";
+                                            statusText = "Concern";
+                                        } else if (concernCondition.includes('<') && ratio.value < parseFloat(concernCondition.replace('<', ''))) {
+                                            statusClass = "concern";
+                                            statusIcon = "⚠";
+                                            statusText = "Concern";
+                                        }
                                     }
                                 }
+                                
+                                const isPercent = isPercentageRatio(key);
+                                const formattedValue = formatRatioValue(ratio.value, isPercent);
                                 
                                 html += `
                                     <div class="ratio-item ${statusClass}">
                                         <div class="ratio-name">${key.replace(/_/g, ' ')}</div>
-                                        <div class="ratio-value">${statusIcon} ${ratio.value}</div>
+                                        <div class="ratio-value">${formattedValue} ${statusIcon}</div>
                                         <div class="ratio-description">${ratio.description}</div>
                                         <div class="ratio-formula">Formula: ${ratio.formula}</div>
                                         <div class="ratio-year">Year: ${ratio.year || 'N/A'}</div>
@@ -3933,24 +4366,169 @@
                 container.classList.remove('hidden');
             }
         }
+
+        // Function to debug and fix company detail elements
+        function debugCompanyDetail() {
+            console.log("DEBUGGING COMPANY DETAIL SECTION");
+            
+            // Check if company detail exists
+            const companyDetail = document.getElementById('company-detail');
+            console.log("company-detail element exists:", !!companyDetail);
+            
+            if (!companyDetail) {
+                console.error("Company detail element not found, trying to create it...");
+                const companyDetailsContainer = document.getElementById('companyDetails');
+                
+                if (companyDetailsContainer) {
+                    console.log("Found companyDetails container, creating company-detail");
+                    const newDetailView = document.createElement('div');
+                    newDetailView.id = 'company-detail';
+                    newDetailView.className = 'section';
+                    
+                    // Create a complete detail view
+                    newDetailView.innerHTML = `
+                        <div class="company-header">
+                            <h3>Company Information</h3>
+                            <div class="company-info">
+                                <div class="info-item">
+                                    <label>Ticker:</label>
+                                    <span id="company-ticker">${window.currentCompany?.ticker || ''}</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>Name:</label>
+                                    <span id="company-name">${window.currentCompany?.name || 'N/A'}</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>CIK:</label>
+                                    <span id="company-cik">${window.currentCompany?.cik || 'N/A'}</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>SIC Code:</label>
+                                    <span id="company-sic">${window.currentCompany?.sic ? `${window.currentCompany.sic}` : 'N/A'}</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>Industry:</label>
+                                    <span id="company-industry">${window.currentCompany?.industry || 'N/A'}</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>State of Incorporation:</label>
+                                    <span id="company-state">${window.currentCompany?.stateOfIncorporation || 'N/A'}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="actions">
+                            <button id="view-10k-button" class="action-button">View 10-K Filings</button>
+                            <button id="view-ratios-button" class="action-button">View Financial Ratios</button>
+                        </div>
+                        
+                        <!-- Filing Container -->
+                        <div id="filing-container" class="hidden"></div>
+                        
+                        <!-- Financial Ratios Container -->
+                        <div id="financial-ratios-container" class="hidden"></div>
+                    `;
+                    
+                    // Clear and append
+                    companyDetailsContainer.innerHTML = '';
+                    companyDetailsContainer.appendChild(newDetailView);
+                    console.log("Created new company detail view");
+                }
+            }
+            
+            // Now check for the ratios button
+            const ratiosButton = document.getElementById('view-ratios-button');
+            console.log("view-ratios-button exists:", !!ratiosButton);
+            
+            if (!ratiosButton && companyDetail) {
+                console.log("Ratios button not found, trying to create it");
+                const actionsContainer = companyDetail.querySelector('.actions');
+                
+                if (actionsContainer) {
+                    console.log("Found actions container, adding ratios button");
+                    const newRatiosButton = document.createElement('button');
+                    newRatiosButton.id = 'view-ratios-button';
+                    newRatiosButton.className = 'action-button';
+                    newRatiosButton.textContent = 'View Financial Ratios';
+                    newRatiosButton.style.display = 'inline-block';
+                    newRatiosButton.style.visibility = 'visible';
+                    
+                    // Add click handler
+                    newRatiosButton.onclick = function() {
+                        console.log("New view-ratios-button clicked!");
+                        const ticker = window.currentCompany?.ticker || document.getElementById('company-ticker')?.textContent;
+                        if (ticker) {
+                            fetchFinancialRatios(ticker);
+                        } else {
+                            console.error("No ticker found for financial ratios");
+                        }
+                    };
+                    
+                    actionsContainer.appendChild(newRatiosButton);
+                    console.log("Added new ratios button");
+                } else {
+                    console.error("Actions container not found in company detail");
+                    // Try to create the actions container
+                    const actionsDiv = document.createElement('div');
+                    actionsDiv.className = 'actions';
+                    
+                    const newRatiosButton = document.createElement('button');
+                    newRatiosButton.id = 'view-ratios-button';
+                    newRatiosButton.className = 'action-button';
+                    newRatiosButton.textContent = 'View Financial Ratios';
+                    
+                    actionsDiv.appendChild(newRatiosButton);
+                    companyDetail.appendChild(actionsDiv);
+                    console.log("Created actions container and added ratios button");
+                }
+            }
+            
+            // Check if the financial-ratios-container exists
+            const ratiosContainer = document.getElementById('financial-ratios-container');
+            console.log("financial-ratios-container exists:", !!ratiosContainer);
+            
+            if (!ratiosContainer && companyDetail) {
+                console.log("Creating financial-ratios-container");
+                const newRatiosContainer = document.createElement('div');
+                newRatiosContainer.id = 'financial-ratios-container';
+                newRatiosContainer.className = 'hidden';
+                companyDetail.appendChild(newRatiosContainer);
+                console.log("Added financial-ratios-container");
+            }
+            
+            console.log("DEBUG COMPLETE");
+        }
+
+        // Add a call to debug and fix at the end of document load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add debug button to the UI 
+            const headerContainer = document.querySelector('header .container');
+            if (headerContainer) {
+                const debugButton = document.createElement('button');
+                debugButton.id = 'debug-button';
+                debugButton.className = 'action-button';
+                debugButton.textContent = 'Fix UI Issues';
+                debugButton.style.marginLeft = '20px';
+                debugButton.onclick = function() {
+                    console.log("Debug button clicked");
+                    debugCompanyDetail();
+                    showNotification("UI Debug Complete", "The UI elements have been checked and fixed if needed.", "info");
+                };
+                headerContainer.appendChild(debugButton);
+                console.log("Added debug button to header");
+            }
+            
+            // Wait for a short time to make sure all elements are loaded
+            setTimeout(function() {
+                // Check if we need to debug the company detail
+                const companyTicker = document.getElementById('company-ticker');
+                if (companyTicker && companyTicker.textContent && !document.getElementById('view-ratios-button')) {
+                    console.log("Company data is present but view-ratios-button is missing, running debug...");
+                    debugCompanyDetail();
+                }
+            }, 1000);
+        });
     </script>
-
-    <!-- Company Detail Section -->
-    <div id="company-detail" class="section hidden">
-        <!-- ... existing code ... -->
-        
-        <div class="actions">
-            <button id="view-10k-button" class="action-button disabled">View 10-K Filings</button>
-            <button id="view-ratios-button" class="action-button disabled">View Financial Ratios</button>
-        </div>
-        
-        <!-- ... existing code ... -->
-        
-        <!-- Financial Ratios Container -->
-        <div id="financial-ratios-container" class="hidden"></div>
-    </div>
-
-    <!-- ... existing code ... -->
 
     <!-- Notification component -->
     <div id="notification">
