@@ -11,54 +11,6 @@ from get_companies import get_ticker_cik_mappings, get_company_info, get_all_com
 # Import the stock service
 from services.stock_service import StockService
 
-# Try to import financial analysis router
-try:
-    from api.routes.financial_analysis import router as financial_analysis_router
-    HAS_FINANCIAL_ANALYSIS = True
-    print("Successfully imported financial_analysis_router")
-except ImportError as e:
-    print(f"Warning: Could not import financial_analysis_router: {e}")
-    HAS_FINANCIAL_ANALYSIS = False
-    # Create a dummy router for testing
-    from fastapi import APIRouter
-    financial_analysis_router = APIRouter(
-        prefix="/financial-analysis",
-        tags=["financial-analysis"],
-        responses={404: {"description": "Not found"}},
-    )
-    
-    @financial_analysis_router.get("/ratios/{ticker}")
-    async def get_financial_ratios_mock(ticker: str):
-        """Mock endpoint for financial ratios"""
-        return {
-            "ticker": ticker,
-            "name": f"Company {ticker}",
-            "ratios": {
-                "liquidity_ratios": {
-                    "current_ratio": {
-                        "value": 1.07,
-                        "description": "Measures a company's ability to pay short-term obligations",
-                        "formula": "Current Assets / Current Liabilities",
-                        "interpretation": {
-                            "good": "> 1.5",
-                            "concern": "< 1.0"
-                        },
-                        "year": 2023
-                    },
-                    "quick_ratio": {
-                        "value": 0.88,
-                        "description": "Measures a company's ability to pay short-term obligations with its most liquid assets",
-                        "formula": "(Current Assets - Inventory) / Current Liabilities",
-                        "interpretation": {
-                            "good": "> 1.0",
-                            "concern": "< 0.7"
-                        },
-                        "year": 2023
-                    }
-                }
-            }
-        }
-
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -81,9 +33,6 @@ app.add_middleware(
     allow_methods=["*"],  # Allow all methods
     allow_headers=["*"],  # Allow all headers
 )
-
-# Include financial analysis router
-app.include_router(financial_analysis_router)
 
 # Initialize services
 stock_service = StockService()
