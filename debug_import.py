@@ -1,0 +1,1 @@
+import sys; import traceback; import os; print("CWD:", os.getcwd()); print("sys.path:", sys.path); sys.path.append("/app"); print("Modified sys.path:", sys.path); try: import api.routes.financial_analysis; print("Import successful!"); except ImportError as e: print("Import failed with error:", str(e)); traceback.print_exc()
